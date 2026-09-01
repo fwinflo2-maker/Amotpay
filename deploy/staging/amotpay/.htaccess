@@ -1,0 +1,26 @@
+Options -Indexes
+ServerSignature Off
+
+<IfModule mod_authz_core.c>
+    <FilesMatch "(?i)(^\.|\.env(?:\..*)?$|\.(?:env|sql|zip|7z|rar|tar|gz|tgz|bz2|xz|apk|aab|jks|keystore|p12|pfx|pem|key)$|(?:^|[-_.])migrat(?:e|ion)[^/]*\.php$)">
+        Require all denied
+    </FilesMatch>
+</IfModule>
+
+<IfModule mod_headers.c>
+    Header always unset X-Powered-By
+    Header always set X-Content-Type-Options "nosniff"
+    Header always set X-Frame-Options "DENY"
+    Header always set Referrer-Policy "no-referrer"
+    Header always set Permissions-Policy "camera=(), microphone=(), geolocation=(), payment=()"
+    Header always set Strict-Transport-Security "max-age=31536000"
+    Header always set Cache-Control "no-store"
+</IfModule>
+
+RewriteEngine On
+RewriteBase /amotpay/
+RewriteRule "(^|/)\." - [F,L,NC]
+RewriteRule "^(?:src|vendor|migrations?)(?:/|$)" - [F,L,NC]
+RewriteRule "(^|/)[^/]*migrat(?:e|ion)[^/]*\.php$" - [F,L,NC]
+RewriteRule "(^|/)[^/]*\.(?:env|sql|zip|7z|rar|tar|gz|tgz|bz2|xz|apk|aab|jks|keystore|p12|pfx|pem|key)$" - [F,L,NC]
+RewriteRule ^rest(?:/.*)?$ rest/index.php [QSA,L]

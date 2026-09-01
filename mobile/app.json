@@ -1,0 +1,23 @@
+{
+  "expo": {
+    "name": "AmotPay",
+    "slug": "amotpay",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./android/app/src/main/res/mipmap-xxxhdpi/ic_launcher.webp",
+    "userInterfaceStyle": "light",
+    "splash": {
+      "backgroundColor": "#1B4332"
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./android/app/src/main/res/mipmap-xxxhdpi/ic_launcher.webp",
+        "backgroundColor": "#1B4332"
+      },
+      "package": "com.amotpay.app"
+    },
+    "extra": {
+      "apiUrl": "https://amotpay-api.nexustechnologies.cloud"
+    }
+  }
+}

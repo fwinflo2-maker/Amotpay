@@ -1,0 +1,13 @@
+{
+    "name": "amotpay/backend",
+    "description": "AmotPay PHP Backend API",
+    "type": "project",
+    "require": {
+        "php": ">=8.1"
+    },
+    "autoload": {
+        "psr-4": {
+            "AmotPay\\": "src/"
+        }
+    }
+}

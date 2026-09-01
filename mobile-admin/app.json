@@ -1,0 +1,17 @@
+{
+  "expo": {
+    "name": "AmotPay Admin",
+    "slug": "amotpay-admin",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "dark",
+    "splash": { "backgroundColor": "#1B4332" },
+    "android": {
+      "package": "com.amotpay.admin",
+      "adaptiveIcon": { "backgroundColor": "#1B4332" }
+    },
+    "extra": {
+      "apiUrl": "https://amotpay-api.nexustechnologies.cloud"
+    }
+  }
+}

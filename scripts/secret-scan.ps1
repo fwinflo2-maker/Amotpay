@@ -17,7 +17,8 @@ $patterns = @(
 $git = "C:\Program Files\Git\bin\git.exe"
 if (-not (Test-Path $git)) { $git = "git" }
 
-$files = & $git ls-files -co --exclude-standard 2>$null
+$staged = & $git diff --cached --name-only 2>$null
+$files = if ($staged) { $staged } else { & $git ls-files -co --exclude-standard 2>$null }
 if (-not $files) {
     Write-Host "No git-tracked/staged files (init repo first)."
     exit 0
@@ -25,7 +26,7 @@ if (-not $files) {
 
 $hits = @()
 foreach ($file in $files) {
-    if ($file -match '(?i)(node_modules|vendor|\.apk$)') { continue }
+    if ($file -match '(?i)(node_modules|vendor|\.apk$|\.env\.example$|runtime\.env\.example$|secret-scan\.ps1$)') { continue }
     if (-not (Test-Path $file)) { continue }
     $content = Get-Content $file -Raw -ErrorAction SilentlyContinue
     if (-not $content) { continue }
