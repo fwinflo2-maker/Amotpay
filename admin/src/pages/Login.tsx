@@ -24,10 +24,18 @@ export function LoginPage() {
           <span className="brand-dot" aria-hidden />
           AMOTPay Admin
         </div>
+        <h1>Sign in</h1>
         <p className="muted">Operations console</p>
         <form onSubmit={submit}>
-          <label className="muted">Admin PIN</label>
-          <input type="password" value={pin} onChange={e => setPin(e.target.value)} autoComplete="current-password" />
+          <label htmlFor="admin-pin">Admin PIN</label>
+          <input
+            id="admin-pin"
+            type="password"
+            value={pin}
+            onChange={(e) => setPin(e.target.value)}
+            autoComplete="current-password"
+            placeholder="Enter your PIN"
+          />
           {error && <p className="error">{error}</p>}
           <button type="submit">Sign in</button>
         </form>

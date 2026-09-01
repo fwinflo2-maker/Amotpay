@@ -1,6 +1,10 @@
 <IfModule mod_rewrite.c>
   RewriteEngine On
   RewriteBase /
+
+  # Root → admin login (React Router basename is /admin)
+  RewriteRule ^$ /admin/login [R=302,L]
+
   RewriteRule ^admin$ /admin/ [R=301,L]
   RewriteCond %{REQUEST_FILENAME} !-f
   RewriteCond %{REQUEST_FILENAME} !-d
