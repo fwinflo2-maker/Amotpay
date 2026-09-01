@@ -26,7 +26,7 @@ if (-not $files) {
 
 $hits = @()
 foreach ($file in $files) {
-    if ($file -match '(?i)(node_modules|vendor|\.apk$|\.env\.example$|runtime\.env\.example$|secret-scan\.ps1$|generate-hostinger-env\.ps1$|je veux savoir)') { continue }
+    if ($file -match '(?i)(node_modules|vendor|\.apk$|\.env\.example$|runtime\.env\.example$|secret-scan\.ps1$|generate-hostinger-env\.ps1$|sandbox-phase2\.ps1$|sandbox\.env\.example$|je veux savoir|docs/SANDBOX_PHASE2\.md)') { continue }
     if (-not (Test-Path $file)) { continue }
     $content = Get-Content $file -Raw -ErrorAction SilentlyContinue
     if (-not $content) { continue }

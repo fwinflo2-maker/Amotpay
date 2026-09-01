@@ -95,11 +95,10 @@ final class AdminProviderService
         };
 
         $latencyMs = (int) ((hrtime(true) - $start) / 1_000_000);
-        $status = ($result['status'] ?? '') === 'ok' || ($result['status'] ?? '') === 'configured'
-            ? 'connected'
-            : 'disconnected';
+        $connected = ($result['status'] ?? '') === 'ok' || ($result['status'] ?? '') === 'configured';
+        $status = $connected ? 'CONNECTED' : 'DISCONNECTED';
 
-        $this->recordHealthCheck($provider, $status, $latencyMs, $result);
+        $this->recordHealthCheck($provider, strtolower($status), $latencyMs, $result);
 
         AuditService::log('admin.provider.test', null, 'provider', $provider, $ip, [
             'status' => $status,

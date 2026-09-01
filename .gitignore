@@ -42,6 +42,8 @@ amotpay.env
 **/*.token
 deploy/upload-creds.json
 deploy/deploy.env
+deploy/sandbox.env
+deploy/sandbox.env.local
 
 # Local requirements / notes with credentials (never commit)
 je veux savoir si le projet repond.txt
