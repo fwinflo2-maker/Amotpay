@@ -138,7 +138,8 @@ final class IdentityVerificationService
 
         return [
             'access_token' => $token['token'] ?? null,
-            'status' => KycStatus::PENDING,
+            'status' => (string) (($existing['kyc_status'] ?? null) ?: KycStatus::PENDING),
+            'level_name' => $this->sumsub->getLevelName(),
         ];
     }
 

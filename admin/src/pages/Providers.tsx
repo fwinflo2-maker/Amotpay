@@ -29,7 +29,7 @@ export function ProvidersPage() {
     SUMSUB_APP_TOKEN: '',
     SUMSUB_SECRET_KEY: '',
     SUMSUB_WEBHOOK_SECRET: '',
-    SUMSUB_LEVEL_NAME: 'basic-kyc-level',
+    SUMSUB_LEVEL_NAME: 'id-and-liveness',
   });
 
   async function load() {

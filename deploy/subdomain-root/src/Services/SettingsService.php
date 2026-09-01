@@ -11,23 +11,33 @@ use AmotPay\Utils\CryptoUtil;
 final class SettingsService
 {
     private const KEYS = [
+        // Legacy Magma (read-only / historical)
         'MAGMA_API_URL',
         'MAGMA_PRIVATE_KEY',
         'MAGMA_SECRET_KEY',
         'MAGMA_WEBHOOK_SECRET',
+        // Cashramp — sole financial provider
         'CASHRAMP_API_URL',
-        'CASHRAMP_SECRET_KEY',
         'CASHRAMP_PUBLIC_KEY',
-        'CASHRAMP_WEBHOOK_TOKEN',
+        'CASHRAMP_SECRET_KEY',
+        'CASHRAMP_WEBHOOK_SECRET',
+        'CASHRAMP_ENVIRONMENT',
+        // Sumsub — identity / KYC
+        'SUMSUB_APP_TOKEN',
+        'SUMSUB_SECRET_KEY',
+        'SUMSUB_WEBHOOK_SECRET',
+        'SUMSUB_LEVEL_NAME',
+        'SUMSUB_BASE_URL',
     ];
 
     public function get(string $key, ?string $envFallback = null): ?string
     {
         $pdo = Database::connection();
-        $stmt = $pdo->prepare('SELECT setting_value FROM provider_settings WHERE setting_key = ?');
-        $stmt->execute([$key]);
-        $row = $stmt->fetch();
+        $row = $this->fetchSettingRow($pdo, $key);
         if ($row) {
+            if (!empty($row['disabled'])) {
+                return null;
+            }
             try {
                 return CryptoUtil::decrypt($row['setting_value']);
             } catch (\Throwable) {
@@ -36,6 +46,24 @@ final class SettingsService
         }
         $env = Env::get($key, $envFallback);
         return ($env !== null && $env !== '') ? $env : null;
+    }
+
+    /** @return array<string, mixed>|null */
+    private function fetchSettingRow(\PDO $pdo, string $key): ?array
+    {
+        try {
+            $stmt = $pdo->prepare('SELECT setting_value, disabled FROM provider_settings WHERE setting_key = ?');
+            $stmt->execute([$key]);
+            $row = $stmt->fetch();
+
+            return $row ?: null;
+        } catch (\PDOException) {
+            $stmt = $pdo->prepare('SELECT setting_value FROM provider_settings WHERE setting_key = ?');
+            $stmt->execute([$key]);
+            $row = $stmt->fetch();
+
+            return $row ?: null;
+        }
     }
 
     public function setMany(array $values): void
@@ -55,7 +83,11 @@ final class SettingsService
                 $pdo->prepare('DELETE FROM provider_settings WHERE setting_key = ?')->execute([$key]);
                 continue;
             }
+            $this->validateKey($key, $val);
             $stmt->execute([$key, CryptoUtil::encrypt($val)]);
+            $pdo->prepare(
+                'UPDATE provider_settings SET encryption_version = 2, rotated_at = NULL, disabled = 0 WHERE setting_key = ?'
+            )->execute([$key]);
         }
     }
 
@@ -72,14 +104,23 @@ final class SettingsService
         return $out;
     }
 
+    public function getWebhookUrls(): array
+    {
+        $base = rtrim(Env::get('APP_URL', 'https://amotpay-api.nexustechnologies.cloud') ?? '', '/');
+
+        return [
+            'cashramp' => $base . '/api/webhooks/cashramp',
+            'sumsub' => $base . '/api/webhooks/sumsub',
+            'magma_legacy' => $base . '/api/webhooks/magma',
+        ];
+    }
+
     public function getMagmaSetupUrls(): array
     {
         $base = rtrim(Env::get('APP_URL', 'https://amotpay-api.nexustechnologies.cloud') ?? '', '/');
         return [
-            'webhook_url' => $base . '/webhooks/magma',
-            'success_url' => $base . '/callbacks/magma/success',
-            'error_url' => $base . '/callbacks/magma/error',
-            'key_expiry_max_days' => 365,
+            'webhook_url' => $base . '/api/webhooks/magma',
+            'legacy' => true,
             'secret_key_rules' => [
                 'min_length' => 40,
                 'must_include' => 'letters, numbers, special chars (@$!%*#?&-_)',
@@ -88,14 +129,43 @@ final class SettingsService
         ];
     }
 
+    public function getSumsubSetupUrls(): array
+    {
+        return [
+            'webhook_url' => $this->getWebhookUrls()['sumsub'],
+            'level_name' => $this->get('SUMSUB_LEVEL_NAME', 'id-and-liveness'),
+        ];
+    }
+
     public function getCashrampSetupUrls(): array
     {
-        $base = rtrim(Env::get('APP_URL', 'https://amotpay-api.nexustechnologies.cloud') ?? '', '/');
         return [
-            'webhook_url' => $base . '/webhooks/cashramp',
-            'staging_api' => 'https://staging.api.useaccrue.com/cashramp/api/graphql',
-            'production_api' => 'https://api.useaccrue.com/cashramp/api/graphql',
+            'webhook_url' => $this->getWebhookUrls()['cashramp'],
+            'environment' => $this->get('CASHRAMP_ENVIRONMENT', 'sandbox'),
+            'api_url' => $this->get(
+                'CASHRAMP_API_URL',
+                'https://staging.api.useaccrue.com/cashramp/api/graphql'
+            ),
         ];
+    }
+
+    private function validateKey(string $key, string $val): void
+    {
+        if ($key === 'MAGMA_API_URL' && !filter_var($val, FILTER_VALIDATE_URL)) {
+            throw new \InvalidArgumentException('Invalid MAGMA_API_URL');
+        }
+        if ($key === 'MAGMA_API_URL' && parse_url($val, PHP_URL_SCHEME) !== 'https') {
+            throw new \InvalidArgumentException('MAGMA_API_URL must use HTTPS');
+        }
+        if ($key === 'CASHRAMP_API_URL' && !filter_var($val, FILTER_VALIDATE_URL)) {
+            throw new \InvalidArgumentException('Invalid CASHRAMP_API_URL');
+        }
+        if ($key === 'SUMSUB_BASE_URL' && !filter_var($val, FILTER_VALIDATE_URL)) {
+            throw new \InvalidArgumentException('Invalid SUMSUB_BASE_URL');
+        }
+        if ($key === 'CASHRAMP_ENVIRONMENT' && !in_array($val, ['sandbox', 'production'], true)) {
+            throw new \InvalidArgumentException('CASHRAMP_ENVIRONMENT must be sandbox or production');
+        }
     }
 
     private function detectOutboundIp(): ?string

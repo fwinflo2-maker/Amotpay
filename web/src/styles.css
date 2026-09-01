@@ -1,0 +1,228 @@
+:root {
+  --bg: #0b1020;
+  --bg-elevated: #121a2f;
+  --card: #151f38;
+  --text: #f4f7ff;
+  --muted: #9aa8c7;
+  --accent: #5b8cff;
+  --accent-hover: #7aa1ff;
+  --success: #3dd68c;
+  --warning: #f5b942;
+  --danger: #ff6b7a;
+  --border: rgba(255, 255, 255, 0.08);
+  --radius: 20px;
+  --shadow: 0 24px 80px rgba(0, 0, 0, 0.35);
+  font-family: 'DM Sans', system-ui, sans-serif;
+  color: var(--text);
+  background: radial-gradient(1200px 600px at 10% -10%, #1a2750 0%, transparent 60%),
+    radial-gradient(900px 500px at 100% 0%, #1b3d4a 0%, transparent 55%),
+    var(--bg);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+}
+
+.verification-page {
+  min-height: 100vh;
+  padding: 2rem 1.25rem 3rem;
+  max-width: 720px;
+  margin: 0 auto;
+}
+
+.verification-header {
+  margin-bottom: 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.lang-switch {
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: rgba(0, 0, 0, 0.25);
+  color: var(--text);
+  padding: 0.4rem 0.75rem;
+  font: inherit;
+}
+
+.brand-mark {
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  font-size: 0.95rem;
+  color: var(--muted);
+}
+
+.card {
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.04), rgba(255, 255, 255, 0.01));
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+}
+
+.premium-card {
+  padding: 2rem;
+}
+
+.eyebrow {
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  font-size: 0.75rem;
+  color: var(--accent);
+  margin: 0 0 0.75rem;
+}
+
+h1 {
+  margin: 0 0 0.75rem;
+  font-size: clamp(1.75rem, 4vw, 2.25rem);
+  line-height: 1.15;
+}
+
+.lede {
+  color: var(--muted);
+  margin: 0 0 1.5rem;
+  line-height: 1.6;
+}
+
+.checklist {
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 14px;
+  padding: 1rem 1.25rem;
+  margin-bottom: 1rem;
+}
+
+.checklist-title {
+  margin: 0 0 0.5rem;
+  font-weight: 600;
+}
+
+.checklist ul {
+  margin: 0;
+  padding-left: 1.2rem;
+  color: var(--muted);
+  line-height: 1.7;
+}
+
+.secure-note {
+  color: var(--muted);
+  font-size: 0.95rem;
+  margin: 0 0 1.5rem;
+}
+
+.primary-btn {
+  appearance: none;
+  border: 0;
+  border-radius: 999px;
+  padding: 0.9rem 1.5rem;
+  font-weight: 600;
+  font-size: 1rem;
+  color: #fff;
+  background: linear-gradient(135deg, var(--accent), #4f6dff);
+  cursor: pointer;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+  box-shadow: 0 12px 30px rgba(91, 140, 255, 0.35);
+}
+
+.primary-btn:hover {
+  transform: translateY(-1px);
+  background: linear-gradient(135deg, var(--accent-hover), #6280ff);
+}
+
+.sdk-card {
+  padding: 1rem;
+  min-height: 520px;
+}
+
+.sumsub-container {
+  min-height: 480px;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.status-card {
+  text-align: center;
+  padding: 2.5rem 2rem;
+}
+
+.status-card p {
+  color: var(--muted);
+  line-height: 1.6;
+  margin: 0 0 1.5rem;
+}
+
+.status-icon {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  margin: 0 auto 1.25rem;
+}
+
+.status-icon.pending {
+  background: radial-gradient(circle at 30% 30%, #ffe6a8, var(--warning));
+}
+
+.status-icon.success {
+  background: radial-gradient(circle at 30% 30%, #b8f5d8, var(--success));
+}
+
+.status-icon.error {
+  background: radial-gradient(circle at 30% 30%, #ffc4cb, var(--danger));
+}
+
+.loading-card {
+  min-height: 200px;
+  display: grid;
+  place-items: center;
+}
+
+.spinner {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 3px solid rgba(255, 255, 255, 0.15);
+  border-top-color: var(--accent);
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.login-form {
+  display: grid;
+  gap: 1rem;
+  margin-top: 1.5rem;
+}
+
+.login-form label {
+  display: grid;
+  gap: 0.4rem;
+  font-size: 0.9rem;
+  color: var(--muted);
+}
+
+.login-form input {
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  background: rgba(0, 0, 0, 0.25);
+  color: var(--text);
+  padding: 0.75rem 0.9rem;
+  font: inherit;
+}
+
+.form-error {
+  color: var(--danger);
+  margin: 0;
+  font-size: 0.9rem;
+}
+
+[dir='rtl'] .checklist ul {
+  padding-left: 0;
+  padding-right: 1.2rem;
+}

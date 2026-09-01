@@ -133,7 +133,7 @@ final class SettingsService
     {
         return [
             'webhook_url' => $this->getWebhookUrls()['sumsub'],
-            'level_name' => $this->get('SUMSUB_LEVEL_NAME', 'basic-kyc-level'),
+            'level_name' => $this->get('SUMSUB_LEVEL_NAME', 'id-and-liveness'),
         ];
     }
 
