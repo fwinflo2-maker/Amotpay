@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { login } from '../api';
 import { AmotpayLogo } from '../components/AmotpayLogo';
@@ -13,12 +13,41 @@ export function LoginPage() {
   const [busy, setBusy] = useState(false);
   const nav = useNavigate();
 
-  async function submit(e: React.FormEvent) {
+  // Browser autofill often fills inputs without firing onChange — sync DOM → state.
+  useEffect(() => {
+    function syncAutofill() {
+      const u = document.getElementById('admin-username') as HTMLInputElement | null;
+      const p = document.getElementById('admin-password') as HTMLInputElement | null;
+      if (u?.value) setUsername(u.value);
+      if (p?.value) setPassword(p.value);
+    }
+    syncAutofill();
+    const t1 = window.setTimeout(syncAutofill, 100);
+    const t2 = window.setTimeout(syncAutofill, 500);
+    return () => {
+      window.clearTimeout(t1);
+      window.clearTimeout(t2);
+    };
+  }, []);
+
+  async function submit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
+    const form = e.currentTarget;
+    const u = (form.elements.namedItem('username') as HTMLInputElement).value.trim();
+    const p = (form.elements.namedItem('password') as HTMLInputElement).value;
+    const totp = needsTotp
+      ? (form.elements.namedItem('totp_code') as HTMLInputElement | null)?.value ?? ''
+      : totpCode;
+
+    if (!u || !p) {
+      setError('Identifiant et mot de passe requis.');
+      return;
+    }
+
     setBusy(true);
     setError('');
     try {
-      const result = await login(username.trim(), password, totpCode || undefined);
+      const result = await login(u, p, totp || undefined);
       if (result.password_change_required) {
         nav('/settings');
         return;
@@ -81,9 +110,11 @@ export function LoginPage() {
               <span className="field-label">Identifiant</span>
               <input
                 id="admin-username"
+                name="username"
                 type="text"
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
+                onInput={(e) => setUsername(e.currentTarget.value)}
                 autoComplete="username"
                 placeholder="admin"
                 disabled={busy}
@@ -95,9 +126,11 @@ export function LoginPage() {
               <span className="field-label">Mot de passe</span>
               <input
                 id="admin-password"
+                name="password"
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
+                onInput={(e) => setPassword(e.currentTarget.value)}
                 autoComplete="current-password"
                 placeholder="••••••••"
                 disabled={busy}
@@ -110,10 +143,12 @@ export function LoginPage() {
                 <span className="field-label">Code 2FA</span>
                 <input
                   id="admin-totp"
+                  name="totp_code"
                   type="text"
                   inputMode="numeric"
                   value={totpCode}
                   onChange={(e) => setTotpCode(e.target.value)}
+                  onInput={(e) => setTotpCode(e.currentTarget.value)}
                   placeholder="123456"
                   disabled={busy}
                   required
@@ -123,7 +158,7 @@ export function LoginPage() {
 
             {error && <p className="error">{error}</p>}
 
-            <Button type="submit" disabled={busy || !username.trim() || !password}>
+            <Button type="submit" disabled={busy}>
               {busy ? 'Connexion…' : 'Connexion'}
             </Button>
           </form>
