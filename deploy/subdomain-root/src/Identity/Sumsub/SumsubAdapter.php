@@ -79,7 +79,20 @@ final class SumsubAdapter
             return ['status' => 'not_configured', 'message' => 'Sumsub credentials missing'];
         }
 
-        return ['status' => 'configured', 'level_name' => $this->levelName];
+        try {
+            $this->request(
+                'GET',
+                '/resources/applicants/-;externalUserId=amotpay-healthcheck/one'
+            );
+            return ['status' => 'ok', 'level_name' => $this->levelName];
+        } catch (\Throwable $e) {
+            $message = $e->getMessage();
+            if (str_contains(strtolower($message), 'not found') || str_contains($message, '404')) {
+                return ['status' => 'ok', 'level_name' => $this->levelName, 'note' => 'auth_ok'];
+            }
+
+            return ['status' => 'error', 'message' => $message, 'level_name' => $this->levelName];
+        }
     }
 
     public static function verifyWebhookSignature(string $rawBody, string $digestHeader, string $secret): bool

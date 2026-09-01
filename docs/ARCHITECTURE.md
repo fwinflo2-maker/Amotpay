@@ -1,69 +1,80 @@
-# AmotPay — Architecture
+# AMOTPay — Architecture
+
+## Applications
+
+| Surface | Stack | URL |
+|---------|-------|-----|
+| **User app** | Expo / React Native / TypeScript (`mobile/`) | Mobile only — no user web app |
+| **Admin** | React / Vite / TypeScript (`admin/`) | https://admin-amotpay.nexustechnologies.cloud |
+| **API** | PHP (`backend/` → `deploy/subdomain-root/`) | https://amotpay-api.nexustechnologies.cloud |
+
+Legacy `mobile-admin/` is not maintained.
 
 ## Providers (strict separation)
 
-| Provider | Role | Documentation |
-|----------|------|---------------|
-| **Magma OnePay** | Fiat transfers / Mobile Money / Payout | https://docs.magmaonepay.com/ |
-| **Cashramp** | Crypto on-ramp / stablecoins | https://docs.cashramp.co/cashramp |
+| Provider | Role |
+|----------|------|
+| **Cashramp** | Finance — quotes, transfers, capabilities, webhooks |
+| **Sumsub** | Identity — KYC/KYB, applicant, webhooks |
 
-No other providers are used in this version.
+The backend owns the source of truth. Mobile and Admin never decide `VERIFIED` or `COMPLETED` alone.
 
-## Hostinger Infrastructure
+## API
 
-| Resource | Value | Notes |
-|----------|-------|-------|
-| Account | `u199940923` | Shared hosting |
-| **AmotPay DB** | `u199940923_amotpay` | **Dedicated — do not touch Nexus** |
-| Nexus DB | `u199940923_nexus` | **DO NOT MODIFY** |
-| DB Host | `srv1862.hstgr.io:3306` | MariaDB/MySQL |
-| Website | `nexustechnologies.cloud` | Nexus (non modifié) |
-| **API AmotPay** | `https://amotpay-api.nexustechnologies.cloud` | Sous-domaine dédié |
+- Version: **2.1.0** (`GET /api/health`)
+- Transfers: `POST /api/v2/quote`, `POST /api/v2/transfers`
+- CORS: explicit `ALLOWED_ORIGINS` on Hostinger (never `*`)
 
-## Wallet Model — Custodial Ledger
-
-Based on Cashramp Direct Ramp documentation:
-
-1. **Who holds funds?** Cashramp merchant account receives stablecoin settlement.
-2. **User wallet address:** Optional `onchainTransferInfo` in `initiateRampQuoteDeposit` delivers on-chain; otherwise settlement stays in merchant account.
-3. **AmotPay approach:** Internal custodial ledger tracks user balances. Wallet is credited **only after** Cashramp webhook confirms `completed` status.
-4. **Private keys:** Never stored in plain text in MySQL. On-chain addresses require secure key management (future phase).
-
-## Fiat Flow (Magma)
+## Transfer flow (user-visible)
 
 ```
-APK → AmotPay Backend → Magma check-account → Quote → Execute Transfer → Webhook → SUCCESS
+Mobile Send (6 steps)
+  → POST /api/v2/quote
+  → POST /api/v2/transfers (Idempotency-Key)
+  → PAYMENT_PENDING
+  → Cashramp webhook
+  → COMPLETED + ledger + reconciliation
 ```
 
-## Crypto Flow (Cashramp)
+User sees fiat corridor only (e.g. XAF → XOF). Internal settlement (e.g. via USDC) stays hidden.
+
+## KYC flow
 
 ```
-APK → Quote (rampQuote) → Buy (initiateRampQuoteDeposit) → Local Payment → markDepositAsPaid → Webhook → Wallet Credit
+Register → Cashramp customer → POST /api/kyc/start
+  → Sumsub mobile SDK (dev build)
+  → Sumsub webhook → backend KYC status
+  → GET /api/eligibility
 ```
 
-## BTC Policy
+## Admin visibility
 
-- Wallet displays BTC balance (always 0 until supported).
-- `buy_enabled = false` for BTC until Cashramp `rampableAssets` confirms support.
-- UI shows: *"BTC achat direct indisponible avec notre infrastructure actuelle."*
+After sandbox E2E, Admin shows: users, KYC, transfers, provider refs, webhooks, ledger, reconciliation.
 
-## Idempotency
+## Hostinger
 
-- Fiat: `AMOTPAY-FIAT-XXXXXXXX`
-- Crypto: `AMOTPAY-CRYPTO-XXXXXXXX`
-- Header: `X-Idempotency-Key`
-
-## Environments
-
-| Env | Magma | Cashramp |
-|-----|-------|----------|
-| Staging/Dev | Test keys | `staging.api.useaccrue.com` |
-| Production | Live keys | `api.useaccrue.com` |
+| Resource | Value |
+|----------|-------|
+| API | `amotpay-api.nexustechnologies.cloud` |
+| Admin static | `admin-amotpay.nexustechnologies.cloud` |
+| Env file | `public_html/amotpay-api/amotpay.env` (403, PHP-readable) |
 
 ## Security
 
-- Provider secrets server-side only
-- HTTPS required
-- Rate limiting per IP
-- Webhook token validation (`X-CASHRAMP-TOKEN`)
-- Audit logs table
+- Provider secrets server-side only (Admin UI or Hostinger env)
+- Webhook signature validation (Cashramp + Sumsub)
+- Rate limiting, audit logs
+- `scripts/security-url-check.ps1` must stay PASS
+
+## Idempotency
+
+- Header: `X-Idempotency-Key`
+- Customer: `POST /api/onboarding/cashramp` — CREATED / REUSED
+- Transfers: duplicate key returns same transfer
+
+## Environments
+
+| Env | Cashramp | Sumsub |
+|-----|----------|--------|
+| Sandbox | `staging.api.useaccrue.com` | `api.sumsub.com` (sandbox tokens) |
+| Production | `api.useaccrue.com` | Live credentials |

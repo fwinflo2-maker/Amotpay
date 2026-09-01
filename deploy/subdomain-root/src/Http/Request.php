@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace AmotPay\Http;
 
+use AmotPay\Config\Env;
+
 final class Request
 {
     public function __construct(
@@ -12,6 +14,7 @@ final class Request
         public readonly array $query,
         public readonly array $body,
         public readonly array $headers,
+        public readonly string $rawBody = '',
     ) {}
 
     public static function capture(): self
@@ -25,11 +28,16 @@ final class Request
 
         $body = [];
         $raw = file_get_contents('php://input') ?: '';
+        $maxBytes = (int) (Env::get('MAX_REQUEST_BODY_BYTES', '65536') ?? '65536');
+        if (strlen($raw) > $maxBytes) {
+            throw new ApiException('Request body too large', 413, 'PAYLOAD_TOO_LARGE');
+        }
         if ($raw !== '') {
             $decoded = json_decode($raw, true);
-            if (is_array($decoded)) {
-                $body = $decoded;
+            if (!is_array($decoded) || json_last_error() !== JSON_ERROR_NONE) {
+                throw new ApiException('Invalid JSON body', 400, 'INVALID_JSON');
             }
+            $body = $decoded;
         }
 
         $headers = [];
@@ -39,8 +47,11 @@ final class Request
                 $headers[$name] = $value;
             }
         }
+        if (!isset($headers['authorization']) && isset($_SERVER['REDIRECT_HTTP_AUTHORIZATION'])) {
+            $headers['authorization'] = (string) $_SERVER['REDIRECT_HTTP_AUTHORIZATION'];
+        }
 
-        return new self($method, $uri, $_GET, $body, $headers);
+        return new self(strtoupper($method), $uri, $_GET, $body, $headers, $raw);
     }
 
     public function bearerToken(): ?string
@@ -55,5 +66,11 @@ final class Request
     public function idempotencyKey(): ?string
     {
         return $this->headers['x-idempotency-key'] ?? $this->body['idempotency_key'] ?? null;
+    }
+
+    public function clientIp(): string
+    {
+        $ip = $_SERVER['REMOTE_ADDR'] ?? '';
+        return filter_var($ip, FILTER_VALIDATE_IP) ? $ip : 'unknown';
     }
 }

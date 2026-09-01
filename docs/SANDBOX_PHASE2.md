@@ -1,5 +1,8 @@
 # AMOTPay — Phase 2 Sandbox E2E
 
+**API:** https://amotpay-api.nexustechnologies.cloud (v2.1.0)  
+**Admin:** https://admin-amotpay.nexustechnologies.cloud
+
 ## Prerequisite
 
 Phase 1 complete: security PASS, migrations 005–007 APPLIED, backend deployed.
@@ -24,11 +27,15 @@ SUMSUB_APP_TOKEN=your-new-sandbox-app-token
 SUMSUB_SECRET_KEY=your-new-sandbox-secret-key
 SUMSUB_WEBHOOK_SECRET=your-sumsub-webhook-secret
 SUMSUB_LEVEL_NAME=basic-kyc-level
+
+ALLOWED_ORIGINS=https://admin-amotpay.nexustechnologies.cloud,https://admin.amotpay.nexustechnologies.cloud,http://localhost:5174
 ```
+
+Never use `*` for CORS.
 
 ### Option B — Admin Web (`admin/`)
 
-1. `cd admin && npm install && npm run dev`
+1. Open https://admin-amotpay.nexustechnologies.cloud/admin/login
 2. Login with `ADMIN_PIN` from Hostinger
 3. **Providers** → save Cashramp + Sumsub credentials (masked after save)
 

@@ -173,6 +173,25 @@
     "quoteExpired": "This quote has expired. Please get a new quote.",
     "kycRequired": "Identity verification is required before sending.",
     "providerUnavailable": "Transfers are temporarily unavailable.",
-    "transferFailed": "We couldn't complete this transfer. Your money has not been charged."
+    "transferFailed": "We couldn't complete this transfer. Your money has not been charged.",
+    "invalidPhone": "Enter a valid phone number for the destination country.",
+    "noDestinations": "No corridors available yet. Try again after capabilities sync.",
+    "failedTitle": "Transfer failed",
+    "statusLabels": {
+      "pending": "Payment pending",
+      "processing": "Processing",
+      "completed": "Completed",
+      "failed": "Failed",
+      "unknown": "Submitted"
+    },
+    "people": {
+      "recent": "Recent",
+      "favorites": "Favorites",
+      "search": "Search",
+      "phone": "Phone",
+      "new": "New recipient",
+      "searchPlaceholder": "Search name or phone",
+      "empty": "No saved recipients yet."
+    }
   }
 }

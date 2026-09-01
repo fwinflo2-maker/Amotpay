@@ -173,6 +173,25 @@
     "quoteExpired": "Ce devis a expiré. Veuillez en obtenir un nouveau.",
     "kycRequired": "La vérification d'identité est requise.",
     "providerUnavailable": "Les transferts sont temporairement indisponibles.",
-    "transferFailed": "Impossible de finaliser le transfert. Votre argent n'a pas été débité."
+    "transferFailed": "Impossible de finaliser le transfert. Votre argent n'a pas été débité.",
+    "invalidPhone": "Saisissez un numéro valide pour le pays de destination.",
+    "noDestinations": "Aucun corridor disponible. Réessayez après synchronisation des capacités.",
+    "failedTitle": "Échec du transfert",
+    "statusLabels": {
+      "pending": "Paiement en attente",
+      "processing": "En cours",
+      "completed": "Terminé",
+      "failed": "Échoué",
+      "unknown": "Soumis"
+    },
+    "people": {
+      "recent": "Récents",
+      "favorites": "Favoris",
+      "search": "Rechercher",
+      "phone": "Téléphone",
+      "new": "Nouveau destinataire",
+      "searchPlaceholder": "Nom ou téléphone",
+      "empty": "Aucun destinataire enregistré."
+    }
   }
 }

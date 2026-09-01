@@ -11,16 +11,38 @@ final class CryptoUtil
     public static function encrypt(string $plain): string
     {
         $key = hash('sha256', Env::require('APP_SECRET'), true);
-        $iv = random_bytes(16);
-        $cipher = openssl_encrypt($plain, 'AES-256-CBC', $key, OPENSSL_RAW_DATA, $iv);
+        $iv = random_bytes(12);
+        $tag = '';
+        $cipher = openssl_encrypt($plain, 'aes-256-gcm', $key, OPENSSL_RAW_DATA, $iv, $tag);
         if ($cipher === false) {
             throw new \RuntimeException('Encryption failed');
         }
-        return base64_encode($iv . $cipher);
+        return 'v2:' . base64_encode($iv . $tag . $cipher);
     }
 
     public static function decrypt(string $encoded): string
     {
+        if (str_starts_with($encoded, 'v2:')) {
+            $raw = base64_decode(substr($encoded, 3), true);
+            if ($raw === false || strlen($raw) < 29) {
+                throw new \RuntimeException('Invalid encrypted payload');
+            }
+            $key = hash('sha256', Env::require('APP_SECRET'), true);
+            $plain = openssl_decrypt(
+                substr($raw, 28),
+                'aes-256-gcm',
+                $key,
+                OPENSSL_RAW_DATA,
+                substr($raw, 0, 12),
+                substr($raw, 12, 16)
+            );
+            if ($plain === false) {
+                throw new \RuntimeException('Decryption failed');
+            }
+            return $plain;
+        }
+
+        // Existing provider settings used CBC; retain read support so credentials can be rotated in place.
         $raw = base64_decode($encoded, true);
         if ($raw === false || strlen($raw) < 17) {
             throw new \RuntimeException('Invalid encrypted payload');

@@ -1,6 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import {
-  ActivityIndicator,
   Pressable,
   ScrollView,
   StyleSheet,
@@ -21,12 +20,26 @@ import { useAuth } from '../../context/AuthContext';
 import { useTheme } from '../../context/ThemeContext';
 import { spacing } from '../../theme/designTokens';
 import { normalizePhone } from '../../utils/transfer';
+import type { Person } from './people';
+import { loadPeople, toggleFavorite, upsertPerson } from './peopleStorage';
+import { RecipientStep } from './RecipientStep';
+import { mapTransferStatus } from './transferStatus';
 
 const STEPS = ['recipient', 'amount', 'destination', 'method', 'review', 'confirm'] as const;
 type Step = (typeof STEPS)[number];
 
 function idempotencyKey() {
   return `amot-${Date.now()}-${Math.random().toString(36).slice(2, 12)}`;
+}
+
+function parseAmount(raw: string): number {
+  return Number(raw.replace(/\s/g, '').replace(/,/g, ''));
+}
+
+function formatAmountInput(raw: string): string {
+  const digits = raw.replace(/[^\d]/g, '');
+  if (!digits) return '';
+  return Number(digits).toLocaleString('en-US');
 }
 
 export function UniversalSendScreen() {
@@ -36,6 +49,8 @@ export function UniversalSendScreen() {
 
   const [step, setStep] = useState<Step>('recipient');
   const [countries, setCountries] = useState<Country[]>([]);
+  const [destinations, setDestinations] = useState<Country[]>([]);
+  const [people, setPeople] = useState<Person[]>([]);
   const [methods, setMethods] = useState<PaymentMethod[]>([]);
   const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState(false);
@@ -53,13 +68,22 @@ export function UniversalSendScreen() {
   const [idemKey] = useState(idempotencyKey);
 
   const stepIndex = STEPS.indexOf(step);
-  const destMeta = countries.find((c) => c.code === destCountry);
+  const destMeta = destinations.find((c) => c.code === destCountry) ?? countries.find((c) => c.code === destCountry);
 
   const loadBootstrap = useCallback(async () => {
     try {
       setError('');
-      const [countryList, eligibility] = await Promise.all([api.countries(), api.eligibility()]);
+      const [countryList, corridorList, eligibility, savedPeople] = await Promise.all([
+        api.countries(),
+        api.corridors(),
+        api.eligibility(),
+        loadPeople(),
+      ]);
       setCountries(countryList);
+      setPeople(savedPeople);
+      const destCodes = new Set(corridorList.map((c) => c.destination_country));
+      const available = countryList.filter((c) => destCodes.has(c.code));
+      setDestinations(available);
       const transfer = eligibility.features.international_transfer;
       setEligible(isFeatureAvailable(transfer));
       if (!isFeatureAvailable(transfer)) {
@@ -88,13 +112,25 @@ export function UniversalSendScreen() {
       .catch(() => setMethods([]));
   }, [destCountry]);
 
+  const selectPerson = (p: Person) => {
+    setFirstName(p.firstName);
+    setLastName(p.lastName);
+    setPhone(p.phone);
+    if (p.countryCode) setDestCountry(p.countryCode);
+  };
+
+  const handleToggleFavorite = async (id: string) => {
+    await toggleFavorite(id);
+    setPeople(await loadPeople());
+  };
+
   const fetchQuote = async () => {
     setBusy(true);
     setError('');
     try {
       await api.ensureCashrampCustomer();
       const q = await api.quote({
-        source_amount: Number(amount.replace(/\s/g, '').replace(',', '.')),
+        source_amount: parseAmount(amount),
         source_currency: user?.currency ?? 'XAF',
         destination_country: destCountry,
         destination_currency: destMeta?.currency ?? 'XOF',
@@ -138,6 +174,13 @@ export function UniversalSendScreen() {
         },
         idemKey,
       );
+      await upsertPerson({
+        firstName: firstName.trim(),
+        lastName: lastName.trim(),
+        phone: normalized.value,
+        countryCode: destCountry,
+      });
+      setPeople(await loadPeople());
       setResult(transfer);
     } catch (e) {
       setError(e instanceof ApiError ? e.message : t('send.transferFailed'));
@@ -148,7 +191,7 @@ export function UniversalSendScreen() {
 
   const canNext = useMemo(() => {
     if (step === 'recipient') return firstName.trim() && lastName.trim() && phone.trim();
-    if (step === 'amount') return Number(amount.replace(/\s/g, '').replace(',', '.')) > 0;
+    if (step === 'amount') return parseAmount(amount) > 0;
     if (step === 'destination') return !!destCountry;
     if (step === 'method') return !!paymentMethod;
     return true;
@@ -172,21 +215,35 @@ export function UniversalSendScreen() {
     if (i > 0) setStep(STEPS[i - 1]);
   };
 
+  const statusKey = result ? mapTransferStatus(result.status) : 'unknown';
+  const statusLabel = t(`send.statusLabels.${statusKey}`);
+
   if (loading) return <LoadingState />;
 
   if (result) {
     return (
       <View style={[styles.flex, { backgroundColor: theme.colors.background, padding: spacing.lg }]}>
         <View style={[styles.successIcon, { backgroundColor: theme.colors.successBg }]}>
-          <Ionicons name="checkmark" size={36} color={theme.colors.success} />
+          <Ionicons name={statusKey === 'failed' ? 'close' : 'checkmark'} size={36} color={statusKey === 'failed' ? theme.colors.error : theme.colors.success} />
         </View>
-        <Text style={theme.type.display}>{t('send.successTitle')}</Text>
-        <Text style={[theme.type.caption, { marginTop: spacing.sm }]}>{t('send.successHint')}</Text>
+        <Text style={theme.type.display}>{statusKey === 'failed' ? t('send.failedTitle') : t('send.successTitle')}</Text>
+        <Text style={[theme.type.caption, { marginTop: spacing.sm }]}>
+          {statusKey === 'failed' ? t('send.transferFailed') : t('send.successHint')}
+        </Text>
         <SurfaceCard style={{ marginTop: spacing.lg }}>
           <Row label={t('send.reference')} value={result.reference} theme={theme} />
-          <Row label={t('send.status')} value={result.status} theme={theme} />
+          <Row label={t('send.status')} value={statusLabel} theme={theme} />
         </SurfaceCard>
-        <PrimaryButton title={t('send.newTransfer')} onPress={() => { setResult(null); setStep('recipient'); setQuote(null); }} style={{ marginTop: spacing.xl }} />
+        <PrimaryButton
+          title={t('send.newTransfer')}
+          onPress={() => {
+            setResult(null);
+            setStep('recipient');
+            setQuote(null);
+            setAmount('');
+          }}
+          style={{ marginTop: spacing.xl }}
+        />
       </View>
     );
   }
@@ -207,11 +264,17 @@ export function UniversalSendScreen() {
       </View>
 
       {step === 'recipient' && (
-        <SurfaceCard>
-          <Field label={t('send.firstName')} value={firstName} onChange={setFirstName} theme={theme} />
-          <Field label={t('send.lastName')} value={lastName} onChange={setLastName} theme={theme} />
-          <Field label={t('send.phone')} value={phone} onChange={setPhone} keyboardType="phone-pad" theme={theme} />
-        </SurfaceCard>
+        <RecipientStep
+          people={people}
+          firstName={firstName}
+          lastName={lastName}
+          phone={phone}
+          onSelect={selectPerson}
+          onToggleFavorite={handleToggleFavorite}
+          onChangeFirstName={setFirstName}
+          onChangeLastName={setLastName}
+          onChangePhone={setPhone}
+        />
       )}
 
       {step === 'amount' && (
@@ -219,7 +282,7 @@ export function UniversalSendScreen() {
           <TextInput
             style={[theme.type.financial, styles.amountInput, { color: theme.colors.text }]}
             value={amount}
-            onChangeText={setAmount}
+            onChangeText={(v) => setAmount(formatAmountInput(v))}
             keyboardType="numeric"
             placeholder="0"
             placeholderTextColor={theme.colors.textMuted}
@@ -230,16 +293,20 @@ export function UniversalSendScreen() {
 
       {step === 'destination' && (
         <View style={styles.chips}>
-          {countries.map((c) => (
-            <Pressable
-              key={c.code}
-              onPress={() => setDestCountry(c.code)}
-              style={[styles.chip, { borderColor: destCountry === c.code ? theme.colors.accent : theme.colors.border, backgroundColor: destCountry === c.code ? theme.colors.accentMuted : theme.colors.surface }]}
-            >
-              <Text style={theme.type.subtitle}>{c.name}</Text>
-              <Text style={theme.type.caption}>{c.currency}</Text>
-            </Pressable>
-          ))}
+          {destinations.length === 0 ? (
+            <Text style={theme.type.caption}>{t('send.noDestinations')}</Text>
+          ) : (
+            destinations.map((c) => (
+              <Pressable
+                key={c.code}
+                onPress={() => setDestCountry(c.code)}
+                style={[styles.chip, { borderColor: destCountry === c.code ? theme.colors.accent : theme.colors.border, backgroundColor: destCountry === c.code ? theme.colors.accentMuted : theme.colors.surface }]}
+              >
+                <Text style={theme.type.subtitle}>{c.name}</Text>
+                <Text style={theme.type.caption}>{c.currency}</Text>
+              </Pressable>
+            ))
+          )}
         </View>
       )}
 
@@ -264,7 +331,7 @@ export function UniversalSendScreen() {
 
       {step === 'review' && (
         <SurfaceCard>
-          <Row label={t('send.youSend')} value={`${Number(amount).toLocaleString()} ${user?.currency}`} theme={theme} />
+          <Row label={t('send.youSend')} value={`${amount || '0'} ${user?.currency}`} theme={theme} />
           <Row label={t('send.recipient')} value={`${firstName} ${lastName}`} theme={theme} />
           <Row label={t('send.destination')} value={destMeta?.name ?? destCountry} theme={theme} />
           <Row label={t('send.method')} value={methods.find((m) => m.provider_code === paymentMethod)?.name ?? paymentMethod} theme={theme} />
@@ -298,15 +365,6 @@ export function UniversalSendScreen() {
   );
 }
 
-function Field({ label, value, onChange, theme, keyboardType }: { label: string; value: string; onChange: (v: string) => void; theme: ReturnType<typeof useTheme>['theme']; keyboardType?: 'phone-pad' | 'default' }) {
-  return (
-    <View style={{ marginBottom: spacing.md }}>
-      <Text style={[theme.type.caption, { marginBottom: 4 }]}>{label}</Text>
-      <TextInput value={value} onChangeText={onChange} keyboardType={keyboardType} style={[styles.field, { color: theme.colors.text, borderColor: theme.colors.border }]} />
-    </View>
-  );
-}
-
 function Row({ label, value, theme }: { label: string; value: string; theme: ReturnType<typeof useTheme>['theme'] }) {
   return (
     <View style={styles.row}>
@@ -324,8 +382,6 @@ const styles = StyleSheet.create({
   chips: { gap: spacing.sm, marginTop: spacing.md },
   chip: { padding: spacing.md, borderRadius: 12, borderWidth: 1 },
   amountInput: { fontSize: 40, textAlign: 'center', marginVertical: spacing.md },
-  hiddenInput: { fontSize: 18, textAlign: 'center', padding: spacing.sm },
-  field: { borderWidth: 1, borderRadius: 12, padding: spacing.md, fontSize: 16 },
   actions: { flexDirection: 'row', gap: spacing.sm, marginTop: spacing.xl },
   actionBtn: { flex: 1 },
   row: { flexDirection: 'row', justifyContent: 'space-between', paddingVertical: spacing.sm },

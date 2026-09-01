@@ -6,6 +6,8 @@ namespace AmotPay\Services;
 
 use AmotPay\Config\Env;
 use AmotPay\Database\Database;
+use AmotPay\Financial\Cashramp\CashrampCustomerService;
+use AmotPay\Http\ApiException;
 
 final class AuthService
 {
@@ -13,7 +15,7 @@ final class AuthService
     {
         $pdo = Database::connection();
 
-        $country = $data['country_code'] ?? '';
+        $country = strtoupper(trim((string) ($data['country_code'] ?? '')));
         $stmt = $pdo->prepare('SELECT code, currency FROM countries WHERE code = ? AND active = 1');
         $stmt->execute([$country]);
         $countryRow = $stmt->fetch();
@@ -21,9 +23,20 @@ final class AuthService
             throw new \InvalidArgumentException('Invalid country');
         }
 
-        $phone = preg_replace('/\s+/', '', $data['phone'] ?? '');
-        if ($phone === '') {
-            throw new \InvalidArgumentException('Phone required');
+        $phone = preg_replace('/[\s()-]+/', '', (string) ($data['phone'] ?? ''));
+        if (!preg_match('/^\+[1-9]\d{7,14}$/', $phone)) {
+            throw new \InvalidArgumentException('Phone must use E.164 format');
+        }
+
+        $firstName = $this->validName($data['first_name'] ?? '', 'first_name');
+        $lastName = $this->validName($data['last_name'] ?? '', 'last_name');
+        $email = trim((string) ($data['email'] ?? ''));
+        if ($email !== '' && !filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            throw new \InvalidArgumentException('Invalid email');
+        }
+        $password = (string) ($data['password'] ?? '');
+        if (strlen($password) < 12 || strlen($password) > 200) {
+            throw new \InvalidArgumentException('Password must contain between 12 and 200 characters');
         }
 
         $check = $pdo->prepare('SELECT id FROM users WHERE phone = ?');
@@ -32,7 +45,7 @@ final class AuthService
             throw new \InvalidArgumentException('Phone already registered');
         }
 
-        $hash = password_hash($data['password'] ?? '', PASSWORD_BCRYPT);
+        $hash = password_hash($password, PASSWORD_DEFAULT);
         if ($hash === false) {
             throw new \RuntimeException('Password hash failed');
         }
@@ -42,17 +55,29 @@ final class AuthService
              VALUES (?, ?, ?, ?, ?, ?, ?)'
         );
         $insert->execute([
-            trim($data['first_name'] ?? ''),
-            trim($data['last_name'] ?? ''),
+            $firstName,
+            $lastName,
             $phone,
-            $data['email'] ?? null,
+            $email === '' ? null : $email,
             $hash,
             $countryRow['code'],
             $countryRow['currency'],
         ]);
 
         $userId = (int) $pdo->lastInsertId();
-        $this->initWallets($userId);
+
+        try {
+            $pdo->prepare(
+                'INSERT INTO kyc_profiles (user_id, status, country_code) VALUES (?, ?, ?)'
+            )->execute([$userId, 'NOT_STARTED', $countryRow['code']]);
+        } catch (\PDOException) {
+        }
+
+        try {
+            (new CashrampCustomerService())->ensureCustomer($userId);
+        } catch (\Throwable) {
+            // Customer can be provisioned later via POST /api/onboarding/cashramp
+        }
 
         return $this->issueToken($userId);
     }
@@ -60,17 +85,17 @@ final class AuthService
     public function login(string $phone, string $password): array
     {
         $pdo = Database::connection();
-        $phone = preg_replace('/\s+/', '', $phone);
+        $phone = preg_replace('/[\s()-]+/', '', $phone);
 
         $stmt = $pdo->prepare('SELECT id, password_hash, status FROM users WHERE phone = ?');
         $stmt->execute([$phone]);
         $user = $stmt->fetch();
 
         if (!$user || !password_verify($password, $user['password_hash'])) {
-            throw new \InvalidArgumentException('Invalid credentials');
+            throw new ApiException('Invalid credentials', 401, 'INVALID_CREDENTIALS');
         }
         if ($user['status'] !== 'active') {
-            throw new \InvalidArgumentException('Account suspended');
+            throw new ApiException('Account unavailable', 403, 'ACCOUNT_UNAVAILABLE');
         }
 
         return $this->issueToken((int) $user['id']);
@@ -85,7 +110,7 @@ final class AuthService
 
     public function userFromToken(?string $token): ?array
     {
-        if ($token === null || $token === '') {
+        if ($token === null || !preg_match('/^[a-f0-9]{64}$/', $token)) {
             return null;
         }
 
@@ -107,13 +132,16 @@ final class AuthService
         $pdo = Database::connection();
         $token = bin2hex(random_bytes(32));
         $hash = hash('sha256', $token);
-        $hours = (int) (Env::get('JWT_EXPIRY_HOURS', '168') ?? '168');
+        $hours = max(1, min((int) (Env::get('JWT_EXPIRY_HOURS', '168') ?? '168'), 720));
 
         $pdo->prepare(
             'INSERT INTO user_sessions (user_id, token_hash, expires_at) VALUES (?, ?, DATE_ADD(NOW(), INTERVAL ? HOUR))'
         )->execute([$userId, $hash, $hours]);
 
-        $stmt = $pdo->prepare('SELECT id, first_name, last_name, phone, country_code, currency FROM users WHERE id = ?');
+        $stmt = $pdo->prepare(
+            'SELECT id, first_name, last_name, phone, email, country_code, currency, kyc_status, kyc_verified_at, cashramp_customer_id
+             FROM users WHERE id = ?'
+        );
         $stmt->execute([$userId]);
 
         return [
@@ -123,20 +151,12 @@ final class AuthService
         ];
     }
 
-    private function initWallets(int $userId): void
+    private function validName(mixed $value, string $field): string
     {
-        $pdo = Database::connection();
-        $assets = [
-            ['USDT', 'CELO'],
-            ['USDC', 'CELO'],
-            ['BTC', 'BTC'],
-        ];
-
-        $stmt = $pdo->prepare(
-            'INSERT IGNORE INTO wallets (user_id, asset, network, balance, available_balance) VALUES (?, ?, ?, 0, 0)'
-        );
-        foreach ($assets as [$asset, $network]) {
-            $stmt->execute([$userId, $asset, $network]);
+        $name = trim((string) $value);
+        if (strlen($name) < 2 || strlen($name) > 100 || preg_match('/[\x00-\x1F\x7F]/', $name)) {
+            throw new \InvalidArgumentException("Invalid {$field}");
         }
+        return $name;
     }
 }

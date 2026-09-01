@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace AmotPay\Services;
 
-use AmotPay\Config\Env;
 use AmotPay\Services\SettingsService;
 
 /**
@@ -42,20 +41,62 @@ final class MagmaService
 
     public function getTransferStatus(string $transferToken): array
     {
-        return $this->get("/v1/payout/transfer/{$transferToken}");
+        return $this->get('/v1/payout/transfer/' . rawurlencode($transferToken));
     }
 
     public function getTransferByReference(string $merchantTransactionId): array
     {
-        return $this->get("/v1/payout/transfer/reference/{$merchantTransactionId}");
+        return $this->get('/v1/payout/transfer/reference/' . rawurlencode($merchantTransactionId));
     }
 
-    public function healthCheck(): array
+    public function getBalance(): array
+    {
+        return $this->get('/v1/misc/balance');
+    }
+
+    public function getAvailableMethods(): array
+    {
+        return $this->get('/v1/misc/payout/services');
+    }
+
+    public function getTransferHistory(array $filters = []): array
+    {
+        $allowed = array_intersect_key($filters, array_flip(['start_date', 'end_date', 'channel', 'currency', 'status']));
+        foreach (['start_date', 'end_date'] as $field) {
+            if (isset($allowed[$field])) {
+                $date = \DateTimeImmutable::createFromFormat('!Y-m-d H:i:s', (string) $allowed[$field]);
+                if (!$date || $date->format('Y-m-d H:i:s') !== $allowed[$field]) {
+                    throw new \InvalidArgumentException("Invalid {$field}");
+                }
+            }
+        }
+        if (isset($allowed['channel']) && !in_array($allowed['channel'], ['mobile_money', 'airtime', 'wave', 'bank_account'], true)) {
+            throw new \InvalidArgumentException('Invalid channel');
+        }
+        if (isset($allowed['status']) && !in_array($allowed['status'], ['new', 'pending', 'success', 'failed'], true)) {
+            throw new \InvalidArgumentException('Invalid status');
+        }
+        if (isset($allowed['currency']) && !preg_match('/^[A-Z]{3}$/', (string) $allowed['currency'])) {
+            throw new \InvalidArgumentException('Invalid currency');
+        }
+        $query = $allowed === [] ? '' : '?' . http_build_query($allowed, '', '&', PHP_QUERY_RFC3986);
+        return $this->get('/v1/payout/transfer/history' . $query);
+    }
+
+    public function healthCheck(bool $remote = false): array
     {
         if (!$this->isConfigured()) {
             return ['status' => 'not_configured', 'message' => 'Magma credentials missing'];
         }
-        return ['status' => 'configured', 'message' => 'Credentials present'];
+        if (!$remote) {
+            return ['status' => 'configured'];
+        }
+        try {
+            $this->getAvailableMethods();
+            return ['status' => 'available'];
+        } catch (\Throwable) {
+            return ['status' => 'unavailable'];
+        }
     }
 
     public static function mapStatus(string $magmaStatus): string
@@ -64,8 +105,28 @@ final class MagmaService
             'success' => 'SUCCESS',
             'pending', 'new' => 'PROCESSING',
             'failed' => 'FAILED',
-            default => 'PENDING',
+            default => throw new \InvalidArgumentException('Unsupported Magma transfer status'),
         };
+    }
+
+    public static function canTransition(string $current, string $next): bool
+    {
+        if ($current === $next) {
+            return true;
+        }
+        return !in_array($current, ['SUCCESS', 'FAILED', 'CANCELLED'], true)
+            && in_array($next, ['PROCESSING', 'SUCCESS', 'FAILED'], true);
+    }
+
+    public static function verifyWebhookSignature(array $payload, string $signature, string $secret): bool
+    {
+        if ($secret === '' || !preg_match('/^[a-f0-9]{64}$/i', $signature) || !isset($payload['data']) || !is_array($payload['data'])) {
+            return false;
+        }
+        // Magma documents signing the JSON encoding of the data object, not the full envelope.
+        $signedPayload = json_encode($payload['data']);
+        return $signedPayload !== false
+            && hash_equals(hash_hmac('sha256', $signedPayload, $secret), strtolower($signature));
     }
 
     private function get(string $path): array
@@ -80,6 +141,9 @@ final class MagmaService
 
     private function request(string $method, string $path, ?array $body = null): array
     {
+        if (!$this->isConfigured()) {
+            throw new \RuntimeException('Magma is not configured');
+        }
         $url = $this->baseUrl . $path;
         $ch = curl_init($url);
 
@@ -95,10 +159,13 @@ final class MagmaService
             CURLOPT_CUSTOMREQUEST => $method,
             CURLOPT_HTTPHEADER => $headers,
             CURLOPT_TIMEOUT => 30,
+            CURLOPT_CONNECTTIMEOUT => 10,
+            CURLOPT_PROTOCOLS => CURLPROTO_HTTPS,
         ]);
 
         if ($body !== null) {
-            curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($body));
+            $encoded = json_encode($body, JSON_UNESCAPED_SLASHES | JSON_THROW_ON_ERROR);
+            curl_setopt($ch, CURLOPT_POSTFIELDS, $encoded);
         }
 
         $response = curl_exec($ch);
@@ -110,11 +177,14 @@ final class MagmaService
             throw new \RuntimeException('Magma request failed: ' . $error);
         }
 
-        $decoded = json_decode($response, true) ?? ['raw' => $response];
+        $decoded = json_decode($response, true);
+        if (!is_array($decoded)) {
+            throw new \RuntimeException('Magma returned an invalid response');
+        }
 
-        if ($httpCode >= 400) {
+        if ($httpCode < 200 || $httpCode >= 300) {
             throw new \RuntimeException(
-                'Magma API error (' . $httpCode . '): ' . ($decoded['message'] ?? $response)
+                'Magma API error (' . $httpCode . '): ' . substr((string) ($decoded['message'] ?? 'request rejected'), 0, 200)
             );
         }
 
