@@ -1,6 +1,6 @@
 import { Link, useLocation } from 'react-router-dom';
 import { setToken } from '../api';
-import { FlowMark } from './FlowMark';
+import { NexusLogo } from './NexusLogo';
 
 const NAV = [
   { to: '/', label: 'Dashboard', icon: 'grid' },
@@ -80,13 +80,19 @@ export function Shell({ children }: { children: React.ReactNode }) {
   const loc = useLocation();
 
   return (
-    <div className="app-shell">
+    <div className="nexus-dash app-shell">
+      <div className="dash-ambient" aria-hidden>
+        <div className="dash-grid" />
+        <div className="dash-glow dash-glow--a" />
+        <div className="dash-glow dash-glow--b" />
+      </div>
+
       <aside className="sidebar">
-        <div className="sidebar-brand">
-          <FlowMark size={36} variant="light" />
+        <div className="sidebar-logo">
+          <NexusLogo size={34} />
           <div>
             <span className="sidebar-title">AMOTPay</span>
-            <span className="sidebar-tag">Operations</span>
+            <span className="sidebar-tag">Nexus Technologies</span>
           </div>
         </div>
 
@@ -97,7 +103,6 @@ export function Shell({ children }: { children: React.ReactNode }) {
               <Link key={to} to={to} className={`nav-link${active ? ' nav-link--active' : ''}`}>
                 <NavIcon name={icon} />
                 <span>{label}</span>
-                {active && <span className="nav-indicator" aria-hidden />}
               </Link>
             );
           })}
@@ -122,7 +127,6 @@ export function Shell({ children }: { children: React.ReactNode }) {
       </aside>
 
       <div className="main-area">
-        <div className="main-glow" aria-hidden />
         <main className="main-content">{children}</main>
       </div>
     </div>

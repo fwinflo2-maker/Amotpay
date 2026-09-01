@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { login } from '../api';
-import { FlowMark } from '../components/FlowMark';
+import { NexusLogo } from '../components/NexusLogo';
 import { Button } from '../components/ui';
 
 export function LoginPage() {
@@ -25,39 +25,55 @@ export function LoginPage() {
   }
 
   return (
-    <div className="login-page">
+    <div className="login-page nexus-lp">
+      <div className="lp-ambient" aria-hidden>
+        <div className="lp-grid" />
+        <div className="lp-glow lp-glow--signal" />
+        <div className="lp-scanline" />
+      </div>
+
+      <header className="lp-nav">
+        <div className="lp-nav-inner">
+          <div className="lp-brand">
+            <NexusLogo size={30} />
+            <span className="lp-brand-text">NEXUS</span>
+          </div>
+          <span className="lp-nav-meta">Operations</span>
+        </div>
+      </header>
+
       <section className="login-hero">
-        <div className="login-hero-brand">
-          <FlowMark size={44} variant="light" />
-          <span>AMOTPay</span>
+        <p className="lp-kicker">AMOTPay · Admin console</p>
+        <h1>
+          Orchestration
+          <br />
+          <span className="lp-accent">financière</span>
+        </h1>
+        <p className="lp-lead">
+          Transferts, identité, providers et réconciliation — une seule console pour piloter la plateforme.
+        </p>
+        <div className="lp-tags">
+          <span>Cashramp</span>
+          <span>Sumsub</span>
+          <span>Ledger</span>
         </div>
-
-        <div className="login-hero-copy">
-          <h1>Operations console</h1>
-          <p>
-            Monitor transfers, identity verification, provider health, and financial reconciliation — all in one
-            secure workspace.
-          </p>
-        </div>
-
-        <p className="login-hero-footer">Cashramp · Sumsub · Ledger</p>
       </section>
 
       <section className="login-panel">
         <div className="login-card">
-          <h2>Welcome back</h2>
-          <p className="login-lead">Sign in with your admin PIN to continue.</p>
+          <h2>Connexion</h2>
+          <p className="login-lead">Entrez votre PIN administrateur pour continuer.</p>
 
           <form onSubmit={submit}>
             <label className="field" htmlFor="admin-pin">
-              <span className="field-label">Admin PIN</span>
+              <span className="field-label">PIN Admin</span>
               <input
                 id="admin-pin"
                 type="password"
                 value={pin}
                 onChange={(e) => setPin(e.target.value)}
                 autoComplete="current-password"
-                placeholder="Enter your PIN"
+                placeholder="••••••••"
                 disabled={busy}
               />
             </label>
@@ -65,10 +81,12 @@ export function LoginPage() {
             {error && <p className="error">{error}</p>}
 
             <Button type="submit" disabled={busy || !pin.trim()}>
-              {busy ? 'Signing in…' : 'Sign in'}
+              {busy ? 'Connexion…' : 'Connexion'}
             </Button>
           </form>
         </div>
+
+        <p className="login-footer">© {new Date().getFullYear()} NEXUS Corp Technologies</p>
       </section>
     </div>
   );
