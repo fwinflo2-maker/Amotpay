@@ -1,5 +1,5 @@
 import { Link, useLocation } from 'react-router-dom';
-import { setToken } from '../api';
+import { logout } from '../api';
 import { AmotpayLogo } from './AmotpayLogo';
 
 const NAV = [
@@ -133,8 +133,9 @@ export function Shell({ children }: { children: React.ReactNode }) {
             type="button"
             className="btn btn--ghost btn--sidebar"
             onClick={() => {
-              setToken(null);
-              window.location.href = '/admin/login';
+              logout().finally(() => {
+                window.location.href = '/admin/login';
+              });
             }}
           >
             Sign out

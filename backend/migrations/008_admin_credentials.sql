@@ -1,9 +1,15 @@
--- Admin credentials (username + password hash)
+-- Admin credentials with security states (username + password hash)
 SET NAMES utf8mb4;
 
 CREATE TABLE IF NOT EXISTS admin_credentials (
     id TINYINT UNSIGNED NOT NULL PRIMARY KEY,
     username VARCHAR(100) NOT NULL,
     password_hash VARCHAR(255) NOT NULL,
+    status ENUM('ACTIVE', 'DISABLED', 'LOCKED', 'PASSWORD_CHANGE_REQUIRED') NOT NULL DEFAULT 'ACTIVE',
+    failed_login_attempts TINYINT UNSIGNED NOT NULL DEFAULT 0,
+    locked_until TIMESTAMP NULL DEFAULT NULL,
+    totp_secret VARCHAR(64) NULL DEFAULT NULL,
+    totp_enabled TINYINT(1) NOT NULL DEFAULT 0,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;

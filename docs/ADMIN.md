@@ -54,14 +54,32 @@ SPA base path: `/admin/` — e.g. `/admin/login`, `/admin/providers`, `/admin/ky
 
 ## Authentication
 
-- Login page: **identifiant** + **mot de passe** (remplace l’ancien PIN seul).
-- Bootstrap Hostinger (`amotpay.env`) :
+- Login page: **identifiant** + **mot de passe** (+ code **2FA** si activé).
+- Bootstrap initial (Hostinger `amotpay.env`, jamais dans GitHub) :
+  ```env
+  BOOTSTRAP_ADMIN_USERNAME=admin
+  BOOTSTRAP_ADMIN_PASSWORD=<temporary-secret-min-8-chars>
+  ```
+  Au premier login après migration 008, le compte est créé en base avec `PASSWORD_CHANGE_REQUIRED`.
+- Fallback legacy (avant bootstrap DB) :
   ```env
   ADMIN_USERNAME=admin
   ADMIN_PASSWORD=<min-8-chars>
   ```
-  `ADMIN_PIN` reste accepté comme mot de passe de secours si `ADMIN_PASSWORD` est vide.
-- Après connexion : **Paramètres** (`/admin/settings`) pour modifier identifiant et mot de passe (stockés en base, hash bcrypt).
+- **Account & Security** (`/admin/settings`) :
+  - Changer identifiant / mot de passe (audit loggé, jamais en clair)
+  - Sessions actives + révocation
+  - 2FA TOTP (setup / enable / disable)
+- Après connexion avec mot de passe temporaire → redirection forcée vers **Paramètres**.
+
+## Migrations
+
+Appliquer via `/admin/migrations` :
+
+| Migration | Contenu |
+|-----------|---------|
+| `008_admin_credentials.sql` | Table `admin_credentials` + états sécurité |
+| `009_admin_sessions_security.sql` | Métadonnées sessions (IP, user-agent) |
 
 ## Security
 

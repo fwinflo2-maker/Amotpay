@@ -73,4 +73,11 @@ final class Request
         $ip = $_SERVER['REMOTE_ADDR'] ?? '';
         return filter_var($ip, FILTER_VALIDATE_IP) ? $ip : 'unknown';
     }
+
+    public function userAgent(): ?string
+    {
+        $ua = $_SERVER['HTTP_USER_AGENT'] ?? '';
+
+        return $ua !== '' ? $ua : null;
+    }
 }

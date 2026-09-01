@@ -7,31 +7,56 @@ namespace AmotPay\Services;
 use AmotPay\Database\Database;
 use AmotPay\Http\ApiException;
 use AmotPay\Admin\AdminAccountService;
+use PDO;
 
 final class AdminService
 {
     public function __construct(private AdminAccountService $accounts = new AdminAccountService()) {}
 
-    public function login(string $username, string $password): array
+    public function login(string $username, string $password, ?string $totpCode, ?string $ip, ?string $userAgent): array
     {
         if (!$this->accounts->isConfigured()) {
             throw new ApiException('Admin authentication is not configured', 503, 'ADMIN_NOT_CONFIGURED');
         }
-        if (!$this->accounts->verify($username, $password)) {
+
+        $this->accounts->assertCanAuthenticate($username);
+        if (!$this->accounts->verify($username, $password, $totpCode)) {
+            if ($this->accounts->requiresTotp() && ($totpCode === null || $totpCode === '')) {
+                throw new ApiException('2FA code required', 401, 'TOTP_REQUIRED');
+            }
             throw new ApiException('Invalid admin credentials', 401, 'INVALID_ADMIN_CREDENTIALS');
         }
 
         $token = bin2hex(random_bytes(32));
         $hash = hash('sha256', $token);
         $pdo = Database::connection();
-        $pdo->prepare(
-            'INSERT INTO admin_sessions (token_hash, expires_at) VALUES (?, DATE_ADD(NOW(), INTERVAL 24 HOUR))'
-        )->execute([$hash]);
+        try {
+            $stmt = $pdo->prepare(
+                'INSERT INTO admin_sessions (token_hash, ip_address, user_agent, last_seen_at, expires_at)
+                 VALUES (?, ?, ?, NOW(), DATE_ADD(NOW(), INTERVAL 24 HOUR))'
+            );
+            $stmt->execute([
+                $hash,
+                $this->truncate($ip, 45),
+                $this->truncate($userAgent, 255),
+            ]);
+        } catch (\PDOException) {
+            $pdo->prepare(
+                'INSERT INTO admin_sessions (token_hash, expires_at) VALUES (?, DATE_ADD(NOW(), INTERVAL 24 HOUR))'
+            )->execute([$hash]);
+        }
+        $sessionId = (int) $pdo->lastInsertId();
+
+        $info = $this->accounts->getAccountInfo();
 
         return [
             'token' => $token,
+            'session_id' => $sessionId,
             'expires_in_hours' => 24,
-            'username' => $this->accounts->getAccountInfo()['username'],
+            'username' => $info['username'],
+            'account_status' => $info['status'],
+            'password_change_required' => $info['password_change_required'],
+            'totp_enabled' => $info['totp_enabled'],
         ];
     }
 
@@ -40,9 +65,45 @@ final class AdminService
         return $this->accounts->getAccountInfo();
     }
 
+    public function changeUsername(string $currentPassword, string $newUsername, ?string $ip): array
+    {
+        return $this->accounts->changeUsername($currentPassword, $newUsername, $ip);
+    }
+
+    public function changePassword(
+        string $currentPassword,
+        string $newPassword,
+        ?string $confirmPassword,
+        ?string $ip,
+        bool $revokeOtherSessions,
+        ?string $currentToken
+    ): array {
+        $result = $this->accounts->changePassword($currentPassword, $newPassword, $confirmPassword, $ip, $revokeOtherSessions);
+        if ($revokeOtherSessions) {
+            $this->revokeOtherSessions($currentToken);
+        }
+
+        return $result;
+    }
+
     public function updateCredentials(string $currentPassword, string $newUsername, string $newPassword, ?string $ip): array
     {
         return $this->accounts->updateCredentials($currentPassword, $newUsername, $newPassword, $ip);
+    }
+
+    public function setupTwoFactor(string $currentPassword): array
+    {
+        return $this->accounts->setupTwoFactor($currentPassword);
+    }
+
+    public function enableTwoFactor(string $currentPassword, string $code, ?string $ip): array
+    {
+        return $this->accounts->enableTwoFactor($currentPassword, $code, $ip);
+    }
+
+    public function disableTwoFactor(string $currentPassword, string $code, ?string $ip): array
+    {
+        return $this->accounts->disableTwoFactor($currentPassword, $code, $ip);
     }
 
     public function verifyPassword(string $password): bool
@@ -62,7 +123,94 @@ final class AdminService
             'SELECT id FROM admin_sessions WHERE token_hash = ? AND expires_at > NOW()'
         );
         $stmt->execute([hash('sha256', $token)]);
-        return (bool) $stmt->fetch();
+        $row = $stmt->fetch(PDO::FETCH_ASSOC);
+        if (!$row) {
+            return false;
+        }
+        try {
+            $pdo->prepare('UPDATE admin_sessions SET last_seen_at = NOW() WHERE id = ?')->execute([(int) $row['id']]);
+        } catch (\PDOException) {
+            // Migration 009 not applied yet.
+        }
+
+        return true;
+    }
+
+    public function sessionIdFromToken(?string $token): ?int
+    {
+        if ($token === null || !preg_match('/^[a-f0-9]{64}$/', $token)) {
+            return null;
+        }
+        $pdo = Database::connection();
+        $stmt = $pdo->prepare('SELECT id FROM admin_sessions WHERE token_hash = ? AND expires_at > NOW()');
+        $stmt->execute([hash('sha256', $token)]);
+        $row = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        return $row ? (int) $row['id'] : null;
+    }
+
+    /** @return array{items: list<array<string, mixed>>} */
+    public function listSessions(?string $currentToken): array
+    {
+        $currentId = $this->sessionIdFromToken($currentToken);
+        $pdo = Database::connection();
+        try {
+            $rows = $pdo->query(
+                'SELECT id, ip_address, user_agent, created_at, last_seen_at, expires_at
+                 FROM admin_sessions
+                 WHERE expires_at > NOW()
+                 ORDER BY id DESC'
+            )->fetchAll(PDO::FETCH_ASSOC);
+        } catch (\PDOException) {
+            $rows = $pdo->query(
+                'SELECT id, created_at, expires_at
+                 FROM admin_sessions
+                 WHERE expires_at > NOW()
+                 ORDER BY id DESC'
+            )->fetchAll(PDO::FETCH_ASSOC);
+        }
+
+        $items = array_map(function (array $row) use ($currentId): array {
+            return [
+                'id' => (int) $row['id'],
+                'ip_address' => $row['ip_address'] ?? null,
+                'user_agent' => $row['user_agent'] ?? null,
+                'created_at' => $row['created_at'],
+                'last_seen_at' => $row['last_seen_at'] ?? null,
+                'expires_at' => $row['expires_at'],
+                'current' => $currentId !== null && (int) $row['id'] === $currentId,
+            ];
+        }, $rows);
+
+        return ['items' => $items];
+    }
+
+    public function revokeSession(int $sessionId, ?string $currentToken): void
+    {
+        $currentId = $this->sessionIdFromToken($currentToken);
+        if ($currentId === $sessionId) {
+            throw new ApiException('Cannot revoke current session from this endpoint', 422, 'CURRENT_SESSION');
+        }
+        $pdo = Database::connection();
+        $pdo->prepare('DELETE FROM admin_sessions WHERE id = ?')->execute([$sessionId]);
+        AuditService::log('admin.session.revoked', null, 'admin_session', (string) $sessionId, null);
+    }
+
+    public function revokeOtherSessions(?string $currentToken): int
+    {
+        $currentId = $this->sessionIdFromToken($currentToken);
+        if ($currentId === null) {
+            return 0;
+        }
+        $pdo = Database::connection();
+        $stmt = $pdo->prepare('DELETE FROM admin_sessions WHERE id <> ?');
+        $stmt->execute([$currentId]);
+        $count = $stmt->rowCount();
+        AuditService::log('admin.sessions.revoked_others', null, 'admin_session', (string) $currentId, null, [
+            'revoked_count' => $count,
+        ]);
+
+        return $count;
     }
 
     public function logout(?string $token): void
@@ -280,6 +428,15 @@ final class AdminService
         );
     }
 
+    private function truncate(?string $value, int $max): ?string
+    {
+        if ($value === null || $value === '') {
+            return null;
+        }
+
+        return substr($value, 0, $max);
+    }
+
     private function pagedQuery(string $sql, array $params, array $filters): array
     {
         $limit = max(1, min((int) ($filters['limit'] ?? 50), 100));
@@ -289,8 +446,8 @@ final class AdminService
         foreach ($params as $value) {
             $stmt->bindValue($position++, $value);
         }
-        $stmt->bindValue($position++, $limit, \PDO::PARAM_INT);
-        $stmt->bindValue($position, $offset, \PDO::PARAM_INT);
+        $stmt->bindValue($position++, $limit, PDO::PARAM_INT);
+        $stmt->bindValue($position, $offset, PDO::PARAM_INT);
         $stmt->execute();
         return ['items' => $stmt->fetchAll(), 'limit' => $limit, 'offset' => $offset];
     }

@@ -136,6 +136,14 @@ final class Router
                 $method === 'POST' && $path === '/api/admin/logout' => $this->adminLogout($adminMw, $adminSvc, $request),
                 $method === 'GET' && $path === '/api/admin/account' => $this->adminGetAccount($adminMw, $adminSvc, $request),
                 $method === 'PUT' && $path === '/api/admin/account/credentials' => $this->adminUpdateCredentials($adminMw, $adminSvc, $request),
+                $method === 'PUT' && $path === '/api/admin/account/username' => $this->adminChangeUsername($adminMw, $adminSvc, $request),
+                $method === 'PUT' && $path === '/api/admin/account/password' => $this->adminChangePassword($adminMw, $adminSvc, $request),
+                $method === 'GET' && $path === '/api/admin/account/sessions' => $this->adminListSessions($adminMw, $adminSvc, $request),
+                $method === 'DELETE' && preg_match('#^/api/admin/account/sessions/(\d+)$#', $path, $m) => $this->adminRevokeSession($adminMw, $adminSvc, $request, (int) $m[1]),
+                $method === 'POST' && $path === '/api/admin/account/sessions/revoke-others' => $this->adminRevokeOtherSessions($adminMw, $adminSvc, $request),
+                $method === 'POST' && $path === '/api/admin/account/2fa/setup' => $this->adminSetupTwoFactor($adminMw, $adminSvc, $request),
+                $method === 'POST' && $path === '/api/admin/account/2fa/enable' => $this->adminEnableTwoFactor($adminMw, $adminSvc, $request),
+                $method === 'POST' && $path === '/api/admin/account/2fa/disable' => $this->adminDisableTwoFactor($adminMw, $adminSvc, $request),
                 $method === 'GET' && $path === '/api/admin/providers' => $this->adminGetProviders($adminMw, $settingsSvc, $request),
                 $method === 'PUT' && $path === '/api/admin/providers' => $this->adminSaveProviders($adminMw, $settingsSvc, $request),
                 $method === 'GET' && $path === '/api/admin/magma-setup' => $this->adminMagmaSetup($adminMw, $settingsSvc, $request),
@@ -337,11 +345,12 @@ final class Router
         $body = $request->body;
         $username = trim((string) ($body['username'] ?? ''));
         $password = (string) ($body['password'] ?? $body['pin'] ?? '');
+        $totpCode = isset($body['totp_code']) ? (string) $body['totp_code'] : null;
         if ($username === '' && isset($body['pin'])) {
             $username = trim((string) (\AmotPay\Config\Env::get('ADMIN_USERNAME', 'admin') ?? 'admin'));
         }
-        $result = $admin->login($username, $password);
-        AuditService::log('admin.login', null, 'admin_session', null, $request->clientIp());
+        $result = $admin->login($username, $password, $totpCode, $request->clientIp(), $request->userAgent());
+        AuditService::log('admin.login', null, 'admin_session', (string) ($result['session_id'] ?? ''), $request->clientIp());
         Response::json(['success' => true, 'data' => $result]);
     }
 
@@ -362,6 +371,91 @@ final class Router
             $request->clientIp()
         );
         Response::json(['success' => true, 'data' => $result]);
+    }
+
+    private function adminChangeUsername(AdminMiddleware $mw, AdminService $admin, Request $request): void
+    {
+        $mw->handle($request);
+        $body = $request->body;
+        $result = $admin->changeUsername(
+            (string) ($body['current_password'] ?? ''),
+            (string) ($body['username'] ?? ''),
+            $request->clientIp()
+        );
+        Response::json(['success' => true, 'data' => $result]);
+    }
+
+    private function adminChangePassword(AdminMiddleware $mw, AdminService $admin, Request $request): void
+    {
+        $mw->handle($request);
+        $body = $request->body;
+        $result = $admin->changePassword(
+            (string) ($body['current_password'] ?? ''),
+            (string) ($body['password'] ?? ''),
+            isset($body['confirm_password']) ? (string) $body['confirm_password'] : null,
+            $request->clientIp(),
+            (bool) ($body['revoke_other_sessions'] ?? false),
+            $request->bearerToken()
+        );
+        Response::json(['success' => true, 'data' => $result]);
+    }
+
+    private function adminListSessions(AdminMiddleware $mw, AdminService $admin, Request $request): void
+    {
+        $mw->handle($request);
+        Response::json(['success' => true, 'data' => $admin->listSessions($request->bearerToken())]);
+    }
+
+    private function adminRevokeSession(AdminMiddleware $mw, AdminService $admin, Request $request, int $sessionId): void
+    {
+        $mw->handle($request);
+        $admin->revokeSession($sessionId, $request->bearerToken());
+        Response::json(['success' => true]);
+    }
+
+    private function adminRevokeOtherSessions(AdminMiddleware $mw, AdminService $admin, Request $request): void
+    {
+        $mw->handle($request);
+        $count = $admin->revokeOtherSessions($request->bearerToken());
+        Response::json(['success' => true, 'data' => ['revoked' => $count]]);
+    }
+
+    private function adminSetupTwoFactor(AdminMiddleware $mw, AdminService $admin, Request $request): void
+    {
+        $mw->handle($request);
+        $body = $request->body;
+        Response::json([
+            'success' => true,
+            'data' => $admin->setupTwoFactor((string) ($body['current_password'] ?? '')),
+        ]);
+    }
+
+    private function adminEnableTwoFactor(AdminMiddleware $mw, AdminService $admin, Request $request): void
+    {
+        $mw->handle($request);
+        $body = $request->body;
+        Response::json([
+            'success' => true,
+            'data' => $admin->enableTwoFactor(
+                (string) ($body['current_password'] ?? ''),
+                (string) ($body['totp_code'] ?? ''),
+                $request->clientIp()
+            ),
+        ]);
+    }
+
+    private function adminDisableTwoFactor(AdminMiddleware $mw, AdminService $admin, Request $request): void
+    {
+        $mw->handle($request);
+        $body = $request->body;
+        Response::json([
+            'success' => true,
+            'data' => $admin->disableTwoFactor(
+                (string) ($body['current_password'] ?? ''),
+                (string) ($body['totp_code'] ?? ''),
+                $request->clientIp()
+            ),
+        ]);
     }
 
     private function adminLogout(AdminMiddleware $mw, AdminService $admin, Request $request): void

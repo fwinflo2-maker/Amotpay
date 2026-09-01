@@ -1,6 +1,6 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import ReactDOM from 'react-dom/client';
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { LoginPage } from './pages/Login';
 import { DashboardPage } from './pages/Dashboard';
 import { ProvidersPage } from './pages/Providers';
@@ -13,11 +13,37 @@ import { AuditPage } from './pages/Audit';
 import { SettingsPage } from './pages/Settings';
 import { MigrationsPage } from './pages/Migrations';
 import { Shell } from './components/Shell';
-import { getToken } from './api';
+import { api, getToken, passwordChangeRequired, setAccountStatus } from './api';
 import './styles.css';
 
 function Private({ children }: { children: React.ReactNode }) {
+  const location = useLocation();
+  const [ready, setReady] = useState(false);
+  const [mustChangePassword, setMustChangePassword] = useState(passwordChangeRequired());
+
+  useEffect(() => {
+    if (!getToken()) {
+      setReady(true);
+      return;
+    }
+    api<{ password_change_required: boolean; username: string; totp_enabled: boolean }>('/admin/account')
+      .then((data) => {
+        setAccountStatus({
+          password_change_required: data.password_change_required,
+          username: data.username,
+          totp_enabled: data.totp_enabled,
+        });
+        setMustChangePassword(data.password_change_required);
+      })
+      .catch(() => undefined)
+      .finally(() => setReady(true));
+  }, [location.pathname]);
+
   if (!getToken()) return <Navigate to="/login" replace />;
+  if (!ready) return null;
+  if (mustChangePassword && location.pathname !== '/settings') {
+    return <Navigate to="/settings" replace />;
+  }
   return <Shell>{children}</Shell>;
 }
 

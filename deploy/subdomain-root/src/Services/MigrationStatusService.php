@@ -45,6 +45,7 @@ final class MigrationStatusService
         $migration006 = $this->findMigration($applied, '006_admin_providers_rbac.sql');
         $migration007 = $this->findMigration($applied, '007_reconciliation.sql');
         $migration008 = $this->findMigration($applied, '008_admin_credentials.sql');
+        $migration009 = $this->findMigration($applied, '009_admin_sessions_security.sql');
         $tables = $this->verifyTables($pdo);
 
         return [
@@ -65,12 +66,17 @@ final class MigrationStatusService
                     'status' => $migration008 ? 'APPLIED' : 'PENDING',
                     'applied_at' => $migration008['applied_at'] ?? null,
                 ],
+                '009_admin_sessions_security.sql' => [
+                    'status' => $migration009 ? 'APPLIED' : 'PENDING',
+                    'applied_at' => $migration009['applied_at'] ?? null,
+                ],
             ],
             'tables' => $tables,
             'ready' => $migration005 !== null
                 && $migration006 !== null
                 && $migration007 !== null
                 && $migration008 !== null
+                && $migration009 !== null
                 && $tables['missing'] === [],
         ];
     }
@@ -99,6 +105,7 @@ final class MigrationStatusService
                 '006_admin_providers_rbac.sql' => $pending,
                 '007_reconciliation.sql' => $pending,
                 '008_admin_credentials.sql' => $pending,
+                '009_admin_sessions_security.sql' => $pending,
             ],
             'tables' => ['present' => [], 'missing' => self::REQUIRED_TABLES],
             'ready' => false,

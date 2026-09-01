@@ -7,6 +7,8 @@ import { Button } from '../components/ui';
 export function LoginPage() {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
+  const [totpCode, setTotpCode] = useState('');
+  const [needsTotp, setNeedsTotp] = useState(false);
   const [error, setError] = useState('');
   const [busy, setBusy] = useState(false);
   const nav = useNavigate();
@@ -16,10 +18,20 @@ export function LoginPage() {
     setBusy(true);
     setError('');
     try {
-      await login(username.trim(), password);
+      const result = await login(username.trim(), password, totpCode || undefined);
+      if (result.password_change_required) {
+        nav('/settings');
+        return;
+      }
       nav('/');
     } catch (err) {
-      setError((err as Error).message);
+      const code = (err as Error & { code?: string }).code;
+      if (code === 'TOTP_REQUIRED') {
+        setNeedsTotp(true);
+        setError('Code 2FA requis.');
+      } else {
+        setError((err as Error).message);
+      }
     } finally {
       setBusy(false);
     }
@@ -62,7 +74,7 @@ export function LoginPage() {
       <section className="login-panel">
         <div className="login-card">
           <h2>Connexion</h2>
-          <p className="login-lead">Entrez votre identifiant et mot de passe administrateur.</p>
+          <p className="login-lead">Identifiant et mot de passe administrateur.</p>
 
           <form onSubmit={submit}>
             <label className="field" htmlFor="admin-username">
@@ -92,6 +104,22 @@ export function LoginPage() {
                 required
               />
             </label>
+
+            {needsTotp ? (
+              <label className="field" htmlFor="admin-totp">
+                <span className="field-label">Code 2FA</span>
+                <input
+                  id="admin-totp"
+                  type="text"
+                  inputMode="numeric"
+                  value={totpCode}
+                  onChange={(e) => setTotpCode(e.target.value)}
+                  placeholder="123456"
+                  disabled={busy}
+                  required
+                />
+              </label>
+            ) : null}
 
             {error && <p className="error">{error}</p>}
 
