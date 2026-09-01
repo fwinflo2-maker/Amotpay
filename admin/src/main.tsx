@@ -41,7 +41,7 @@ function Private({ children }: { children: React.ReactNode }) {
 
   if (!getToken()) return <Navigate to="/login" replace />;
   if (!ready) return null;
-  if (mustChangePassword && location.pathname !== '/settings') {
+  if (mustChangePassword && !['/settings', '/migrations'].includes(location.pathname)) {
     return <Navigate to="/settings" replace />;
   }
   return <Shell>{children}</Shell>;

@@ -24,6 +24,9 @@ final class AdminService
             if ($this->accounts->requiresTotp() && ($totpCode === null || $totpCode === '')) {
                 throw new ApiException('2FA code required', 401, 'TOTP_REQUIRED');
             }
+            AuditService::log('admin.login.failed', null, 'admin_account', '1', $ip, [
+                'username' => $username,
+            ]);
             throw new ApiException('Invalid admin credentials', 401, 'INVALID_ADMIN_CREDENTIALS');
         }
 

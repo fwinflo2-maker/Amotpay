@@ -31,6 +31,8 @@ final class AdminMiddleware
             '/api/admin/account/password',
             '/api/admin/account/credentials',
             '/api/admin/logout',
+            '/api/admin/migrations',
+            '/api/admin/migrations/apply',
         ];
         if (!in_array($request->path, $allowed, true)) {
             Response::error('Password change required', 403, 'PASSWORD_CHANGE_REQUIRED');

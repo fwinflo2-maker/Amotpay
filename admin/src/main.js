@@ -41,7 +41,7 @@ function Private({ children }) {
         return _jsx(Navigate, { to: "/login", replace: true });
     if (!ready)
         return null;
-    if (mustChangePassword && location.pathname !== '/settings') {
+    if (mustChangePassword && !['/settings', '/migrations'].includes(location.pathname)) {
         return _jsx(Navigate, { to: "/settings", replace: true });
     }
     return _jsx(Shell, { children: children });

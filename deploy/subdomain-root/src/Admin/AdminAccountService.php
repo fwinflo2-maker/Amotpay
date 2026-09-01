@@ -27,19 +27,21 @@ final class AdminAccountService
         $this->bootstrap->bootstrapIfNeeded();
         $stored = $this->fetchStored();
         if ($stored !== null) {
-            return [
-                'username' => $stored['username'],
-                'source' => 'database',
-                'status' => $stored['status'],
-                'totp_enabled' => (bool) $stored['totp_enabled'],
-                'password_change_required' => $stored['status'] === 'PASSWORD_CHANGE_REQUIRED',
-            ];
+        return [
+            'username' => $stored['username'],
+            'source' => 'database',
+            'status' => $stored['status'],
+            'role' => 'SUPER_ADMIN',
+            'totp_enabled' => (bool) $stored['totp_enabled'],
+            'password_change_required' => $stored['status'] === 'PASSWORD_CHANGE_REQUIRED',
+        ];
         }
 
         return [
             'username' => $this->envUsername(),
             'source' => 'environment',
             'status' => 'ACTIVE',
+            'role' => 'SUPER_ADMIN',
             'totp_enabled' => false,
             'password_change_required' => false,
         ];
@@ -97,8 +99,19 @@ final class AdminAccountService
         if ($stored['status'] === 'DISABLED') {
             throw new ApiException('Admin account is disabled', 403, 'ADMIN_DISABLED');
         }
-        if ($stored['status'] === 'LOCKED' || $this->isLocked($stored)) {
+        if ($stored['status'] === 'LOCKED' && $this->isLocked($stored)) {
             throw new ApiException('Admin account is temporarily locked', 403, 'ADMIN_LOCKED');
+        }
+        if ($stored['status'] === 'LOCKED' && !$this->isLocked($stored)) {
+            $this->upsertCredentials(
+                $stored['username'],
+                $stored['password_hash'],
+                'ACTIVE',
+                0,
+                $stored['totp_secret'],
+                (bool) $stored['totp_enabled'],
+                null
+            );
         }
     }
 
