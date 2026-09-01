@@ -7,8 +7,8 @@
 ```
 AMOTPAY/
 ├── backend/          PHP REST API (Hostinger)
-├── admin/            React + TypeScript operations console
-├── mobile/           React Native Android APK
+├── mobile/           Expo / React Native — user app
+├── admin/            React + Vite — admin web console
 ├── docs/             Architecture, security, deployment
 └── README.md
 ```
@@ -19,10 +19,10 @@ AMOTPAY/
 https://amotpay-api.nexustechnologies.cloud
 ```
 
-Webhooks:
+## Admin Web
 
-- `POST /api/webhooks/cashramp`
-- `POST /api/webhooks/sumsub`
+Target: `https://admin.amotpay.nexustechnologies.cloud`  
+Production (Hostinger): `https://admin-amotpay.nexustechnologies.cloud` — see `docs/ADMIN.md`.
 
 ## Security
 
@@ -47,6 +47,13 @@ cd admin
 npm install
 npm run dev
 ```
+
+Production: https://admin-amotpay.nexustechnologies.cloud — see `docs/ADMIN.md`.
+
+Webhooks:
+
+- `POST /api/webhooks/cashramp`
+- `POST /api/webhooks/sumsub`
 
 ## Quick Start — Mobile APK
 
