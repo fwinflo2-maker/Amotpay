@@ -4,12 +4,12 @@ Operations console for AMOTPay — **Web only**.
 
 | Item | Value |
 |------|-------|
-| Target URL | https://admin.amotpay.nexustechnologies.cloud |
-| Production URL (Hostinger) | https://admin-amotpay.nexustechnologies.cloud |
+| **Production URL** | https://admin-amotpay.nexustechnologies.cloud |
+| Future canonical URL | https://admin.amotpay.nexustechnologies.cloud *(DNS/vhost not configured yet)* |
 | API | https://amotpay-api.nexustechnologies.cloud |
 | Stack | React + TypeScript + Vite |
 
-> **DNS note:** Hostinger does not support multi-level subdomains such as `admin.amotpay.nexustechnologies.cloud` via the hosting API. Production is deployed at `admin-amotpay.nexustechnologies.cloud` until a custom DNS/vhost mapping is configured for the target hostname.
+> Use **only** the Production URL above until the future hostname is live. Do not document `admin.amotpay` as operational.
 
 ## Local development
 

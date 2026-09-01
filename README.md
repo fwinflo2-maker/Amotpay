@@ -21,8 +21,8 @@ https://amotpay-api.nexustechnologies.cloud
 
 ## Admin Web
 
-Target: `https://admin.amotpay.nexustechnologies.cloud`  
-Production (Hostinger): `https://admin-amotpay.nexustechnologies.cloud` — see `docs/ADMIN.md`.
+**Production URL:** https://admin-amotpay.nexustechnologies.cloud  
+**Future canonical URL:** https://admin.amotpay.nexustechnologies.cloud *(not live yet)* — see `docs/ADMIN.md`.
 
 ## Security
 

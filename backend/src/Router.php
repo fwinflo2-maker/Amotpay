@@ -60,6 +60,9 @@ final class Router
                     'success' => true,
                     'service' => 'AmotPay',
                     'status' => 'ok',
+                    'version' => Version::STRING,
+                    'api' => Version::API,
+                    'environment' => Env::get('APP_ENV', 'production') ?? 'production',
                     'timestamp' => date('c'),
                 ]),
 
