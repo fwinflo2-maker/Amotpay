@@ -50,7 +50,7 @@ Because the file was public HTTP 200, rotate:
 Generate new local values (paste into Hostinger only, never commit):
 
 ```powershell
-.\scripts\generate-hostinger-secrets.ps1
+.\scripts\generate-hostinger-env.ps1
 ```
 
 ## Step 5 — Verify
