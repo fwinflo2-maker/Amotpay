@@ -5,7 +5,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useTranslation } from 'react-i18next';
 import { useTheme } from '../context/ThemeContext';
 import { HomeScreen } from '../screens/home/HomeScreen';
-import { SendScreen } from '../screens/SendScreen';
+import { UniversalSendScreen } from '../features/send/UniversalSendScreen';
 import { AccountsScreen } from '../screens/accounts/AccountsScreen';
 import { WalletScreen } from '../screens/wallet/WalletScreen';
 import { ActivityScreen } from '../screens/activity/ActivityScreen';
@@ -50,7 +50,7 @@ export function MainTabs() {
       })}
     >
       <Tab.Screen name="Home" component={HomeScreen} options={{ title: t('tabs.home'), headerShown: false }} />
-      <Tab.Screen name="Send" component={SendScreen} options={{ title: t('tabs.send') }} />
+      <Tab.Screen name="Send" component={UniversalSendScreen} options={{ title: t('tabs.send') }} />
       <Tab.Screen name="Accounts" component={AccountsScreen} options={{ title: t('tabs.accounts') }} />
       <Tab.Screen name="Wallet" component={WalletScreen} options={{ title: t('tabs.wallet') }} />
       <Tab.Screen name="Activity" component={ActivityScreen} options={{ title: t('tabs.activity') }} />

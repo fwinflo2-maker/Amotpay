@@ -137,5 +137,42 @@
     "title": "Vérifiez votre identité",
     "body": "Débloquez transferts, comptes et plus.",
     "cta": "Vérifier"
+  },
+  "send": {
+    "step": "Étape {{current}} sur {{total}}",
+    "steps": {
+      "recipient": "À qui envoyez-vous ?",
+      "amount": "Quel montant ?",
+      "destination": "Où doit-il recevoir ?",
+      "method": "Comment doit-il recevoir ?",
+      "review": "Vérification",
+      "confirm": "Confirmer le transfert"
+    },
+    "firstName": "Prénom",
+    "lastName": "Nom",
+    "phone": "Téléphone",
+    "youSend": "Vous envoyez",
+    "recipient": "Destinataire",
+    "recipientGets": "Le destinataire reçoit",
+    "destination": "Destination",
+    "method": "Méthode",
+    "fee": "Frais",
+    "rate": "Taux",
+    "reference": "Référence",
+    "status": "Statut",
+    "continue": "Continuer",
+    "back": "Retour",
+    "getQuote": "Obtenir le devis",
+    "confirmTransfer": "Confirmer le transfert",
+    "successTitle": "Transfert envoyé",
+    "successHint": "Nous traitons votre transfert. Le statut sera mis à jour par AMOTPay.",
+    "newTransfer": "Envoyer à nouveau",
+    "unavailable": "Envoi indisponible",
+    "unavailableHint": "Les transferts internationaux ne sont pas encore disponibles pour votre profil.",
+    "noMethods": "Aucune méthode de paiement pour ce pays.",
+    "quoteExpired": "Ce devis a expiré. Veuillez en obtenir un nouveau.",
+    "kycRequired": "La vérification d'identité est requise.",
+    "providerUnavailable": "Les transferts sont temporairement indisponibles.",
+    "transferFailed": "Impossible de finaliser le transfert. Votre argent n'a pas été débité."
   }
 }

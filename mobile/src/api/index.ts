@@ -1,7 +1,9 @@
 import { authApi } from './auth';
 import { eligibilityApi } from './eligibility';
 import { kycApi } from './kyc';
+import { onboardingApi } from './onboarding';
 import { transfersApi } from './transfers';
+import { transfersV2Api } from './transfersV2';
 import { walletsApi } from './wallets';
 
 export const api = {
@@ -10,7 +12,8 @@ export const api = {
   ...eligibilityApi,
   ...transfersApi,
   ...walletsApi,
-  // Legacy aliases used by SendScreen
+  ...transfersV2Api,
+  ...onboardingApi,
   countries: transfersApi.countries,
   corridors: transfersApi.corridors,
   paymentMethods: transfersApi.paymentMethods,
@@ -26,5 +29,6 @@ export const api = {
 
 export * from './types';
 export * from './http';
-export { authApi, kycApi, eligibilityApi, transfersApi, walletsApi };
+export * from './transfersV2';
+export { authApi, kycApi, eligibilityApi, transfersApi, walletsApi, transfersV2Api, onboardingApi };
 export { isFeatureAvailable, isFeaturePending } from './eligibility';

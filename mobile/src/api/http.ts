@@ -27,9 +27,12 @@ export type ApiErrorCode =
   | 'KYC_REQUIRED'
   | 'FEATURE_UNAVAILABLE'
   | 'PROVIDER_UNAVAILABLE'
+  | 'PROVIDER_NOT_CONFIGURED'
   | 'QUOTE_EXPIRED'
   | 'LIMIT_EXCEEDED'
   | 'TRANSACTION_FAILED'
+  | 'TRANSFER_NOT_ELIGIBLE'
+  | 'CUSTOMER_NOT_READY'
   | 'UNKNOWN';
 
 export class ApiError extends Error {
@@ -57,6 +60,15 @@ function mapError(status: number, serverCode?: string, message?: string): ApiErr
   }
   if (serverCode === 'PROVIDER_UNAVAILABLE' || status === 503) {
     return new ApiError(msg, 'PROVIDER_UNAVAILABLE', status);
+  }
+  if (serverCode === 'PROVIDER_NOT_CONFIGURED') {
+    return new ApiError(msg, 'PROVIDER_NOT_CONFIGURED', status);
+  }
+  if (serverCode === 'TRANSFER_NOT_ELIGIBLE') {
+    return new ApiError(msg, 'TRANSFER_NOT_ELIGIBLE', status);
+  }
+  if (serverCode === 'CUSTOMER_NOT_READY') {
+    return new ApiError(msg, 'CUSTOMER_NOT_READY', status);
   }
   if (serverCode === 'QUOTE_EXPIRED') return new ApiError(msg, 'QUOTE_EXPIRED', status);
   if (serverCode === 'LIMIT_EXCEEDED') return new ApiError(msg, 'LIMIT_EXCEEDED', status);

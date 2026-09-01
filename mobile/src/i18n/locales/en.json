@@ -137,5 +137,42 @@
     "title": "Verify your identity",
     "body": "Unlock transfers, accounts, and more.",
     "cta": "Verify now"
+  },
+  "send": {
+    "step": "Step {{current}} of {{total}}",
+    "steps": {
+      "recipient": "Who are you sending to?",
+      "amount": "How much?",
+      "destination": "Where should they receive it?",
+      "method": "How should they receive it?",
+      "review": "Review",
+      "confirm": "Confirm transfer"
+    },
+    "firstName": "First name",
+    "lastName": "Last name",
+    "phone": "Phone number",
+    "youSend": "You send",
+    "recipient": "Recipient",
+    "recipientGets": "Recipient gets",
+    "destination": "Destination",
+    "method": "Method",
+    "fee": "Fee",
+    "rate": "Rate",
+    "reference": "Reference",
+    "status": "Status",
+    "continue": "Continue",
+    "back": "Back",
+    "getQuote": "Get quote",
+    "confirmTransfer": "Confirm transfer",
+    "successTitle": "Transfer submitted",
+    "successHint": "We're processing your transfer. Status updates when confirmed by AMOTPay.",
+    "newTransfer": "Send again",
+    "unavailable": "Send unavailable",
+    "unavailableHint": "International transfers are not available for your profile yet.",
+    "noMethods": "No payout methods available for this country.",
+    "quoteExpired": "This quote has expired. Please get a new quote.",
+    "kycRequired": "Identity verification is required before sending.",
+    "providerUnavailable": "Transfers are temporarily unavailable.",
+    "transferFailed": "We couldn't complete this transfer. Your money has not been charged."
   }
 }
