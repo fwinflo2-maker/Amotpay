@@ -19,6 +19,10 @@ $appSecretBytes = New-Object byte[] 48
 
 Write-Host "=== AMOTPay secret rotation (paste into Hostinger env only) ==="
 Write-Host ""
+Write-Host "ADMIN_USERNAME=admin"
+Write-Host "ADMIN_PASSWORD=$(New-RandomPin 12)Aa"
+Write-Host "BOOTSTRAP_ADMIN_USERNAME=admin"
+Write-Host "BOOTSTRAP_ADMIN_PASSWORD=$(New-RandomPin 12)Bb"
 Write-Host "APP_SECRET=$([Convert]::ToBase64String($appSecretBytes))"
 Write-Host "ADMIN_PIN=$(New-RandomPin 12)"
 Write-Host "DB_PASSWORD=$(New-RandomHex 24)"

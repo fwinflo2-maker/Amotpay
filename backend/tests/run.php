@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 require_once __DIR__ . '/../vendor/autoload.php';
 
-use AmotPay\Services\MagmaService;
 use AmotPay\Services\TransferService;
 
 $tests = [];
@@ -16,28 +15,6 @@ $assert = static function (bool $condition, string $message = 'assertion failed'
         throw new RuntimeException($message);
     }
 };
-
-$test('Magma webhook signature signs only data', static function () use ($assert): void {
-    $payload = [
-        'event' => 'payout.success.webhook',
-        'data' => ['transfer_token' => 'token-1', 'transfer_status' => 'success'],
-    ];
-    $secret = 'test-secret';
-    $signature = hash_hmac('sha256', json_encode($payload['data']), $secret);
-    $assert(MagmaService::verifyWebhookSignature($payload, $signature, $secret));
-    $payload['event'] = 'payout.failed.webhook';
-    $assert(MagmaService::verifyWebhookSignature($payload, $signature, $secret), 'event must not be part of documented signature');
-    $payload['data']['transfer_status'] = 'failed';
-    $assert(!MagmaService::verifyWebhookSignature($payload, $signature, $secret));
-});
-
-$test('Magma statuses and final transitions are non-regressive', static function () use ($assert): void {
-    $assert(MagmaService::mapStatus('new') === 'PROCESSING');
-    $assert(MagmaService::mapStatus('success') === 'SUCCESS');
-    $assert(MagmaService::canTransition('PROCESSING', 'FAILED'));
-    $assert(!MagmaService::canTransition('SUCCESS', 'FAILED'));
-    $assert(!MagmaService::canTransition('FAILED', 'SUCCESS'));
-});
 
 $test('KYC status mapping from Sumsub', static function () use ($assert): void {
     $assert(\AmotPay\Identity\KycStatus::mapFromSumsub('completed', 'GREEN') === \AmotPay\Identity\KycStatus::VERIFIED);

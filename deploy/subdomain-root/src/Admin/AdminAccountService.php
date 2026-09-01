@@ -75,6 +75,10 @@ final class AdminAccountService
             return true;
         }
 
+        if ($this->bootstrap->credentialsTableExists()) {
+            return false;
+        }
+
         if (!hash_equals(strtolower($this->envUsername()), strtolower($username))) {
             return false;
         }
@@ -267,6 +271,10 @@ final class AdminAccountService
         $this->bootstrap->bootstrapIfNeeded();
         if ($this->fetchStored() !== null) {
             return true;
+        }
+
+        if ($this->bootstrap->credentialsTableExists()) {
+            return false;
         }
 
         return $this->envPassword() !== null && strlen($this->envPassword() ?? '') >= 8;

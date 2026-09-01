@@ -22,7 +22,7 @@ test('normalizePhone creates an E.164 number and rejects another country', () =>
   assert.match(normalizePhone('+237 690 00 00 00', '+225').error ?? '', /pays sélectionné/);
 });
 
-test('isBeneficiaryRejected recognizes explicit Magma failures', () => {
+test('isBeneficiaryRejected recognizes explicit provider failures', () => {
   assert.equal(isBeneficiaryRejected({ valid: false }), true);
   assert.equal(isBeneficiaryRejected({ status: 'invalid' }), true);
   assert.equal(isBeneficiaryRejected({ success: true, data: { valid: false } }), true);

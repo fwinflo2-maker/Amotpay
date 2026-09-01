@@ -11,11 +11,6 @@ use AmotPay\Utils\CryptoUtil;
 final class SettingsService
 {
     private const KEYS = [
-        // Legacy Magma (read-only / historical)
-        'MAGMA_API_URL',
-        'MAGMA_PRIVATE_KEY',
-        'MAGMA_SECRET_KEY',
-        'MAGMA_WEBHOOK_SECRET',
         // Cashramp — sole financial provider
         'CASHRAMP_API_URL',
         'CASHRAMP_PUBLIC_KEY',
@@ -111,21 +106,6 @@ final class SettingsService
         return [
             'cashramp' => $base . '/api/webhooks/cashramp',
             'sumsub' => $base . '/api/webhooks/sumsub',
-            'magma_legacy' => $base . '/api/webhooks/magma',
-        ];
-    }
-
-    public function getMagmaSetupUrls(): array
-    {
-        $base = rtrim(Env::get('APP_URL', 'https://amotpay-api.nexustechnologies.cloud') ?? '', '/');
-        return [
-            'webhook_url' => $base . '/api/webhooks/magma',
-            'legacy' => true,
-            'secret_key_rules' => [
-                'min_length' => 40,
-                'must_include' => 'letters, numbers, special chars (@$!%*#?&-_)',
-            ],
-            'server_outbound_ip' => $this->detectOutboundIp(),
         ];
     }
 
@@ -151,12 +131,6 @@ final class SettingsService
 
     private function validateKey(string $key, string $val): void
     {
-        if ($key === 'MAGMA_API_URL' && !filter_var($val, FILTER_VALIDATE_URL)) {
-            throw new \InvalidArgumentException('Invalid MAGMA_API_URL');
-        }
-        if ($key === 'MAGMA_API_URL' && parse_url($val, PHP_URL_SCHEME) !== 'https') {
-            throw new \InvalidArgumentException('MAGMA_API_URL must use HTTPS');
-        }
         if ($key === 'CASHRAMP_API_URL' && !filter_var($val, FILTER_VALIDATE_URL)) {
             throw new \InvalidArgumentException('Invalid CASHRAMP_API_URL');
         }
@@ -166,25 +140,5 @@ final class SettingsService
         if ($key === 'CASHRAMP_ENVIRONMENT' && !in_array($val, ['sandbox', 'production'], true)) {
             throw new \InvalidArgumentException('CASHRAMP_ENVIRONMENT must be sandbox or production');
         }
-    }
-
-    private function detectOutboundIp(): ?string
-    {
-        $cached = $this->get('_SERVER_OUTBOUND_IP');
-        if ($cached) {
-            return $cached;
-        }
-        $ctx = stream_context_create(['http' => ['timeout' => 5]]);
-        $ip = @file_get_contents('https://api.ipify.org', false, $ctx);
-        if ($ip && filter_var(trim($ip), FILTER_VALIDATE_IP)) {
-            $pdo = Database::connection();
-            $enc = CryptoUtil::encrypt(trim($ip));
-            $pdo->prepare(
-                'INSERT INTO provider_settings (setting_key, setting_value) VALUES (?, ?)
-                 ON DUPLICATE KEY UPDATE setting_value = VALUES(setting_value)'
-            )->execute(['_SERVER_OUTBOUND_IP', $enc]);
-            return trim($ip);
-        }
-        return null;
     }
 }

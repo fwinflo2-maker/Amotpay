@@ -14,7 +14,7 @@ import type {
 export const transfersApi = {
   countries: () => request<Country[]>('/countries'),
   corridors: () => request<Corridor[]>('/corridors'),
-  paymentMethods: (country: string, provider = 'MAGMA') =>
+  paymentMethods: (country: string, provider = 'CASHRAMP') =>
     request<PaymentMethod[]>(
       `/payment-methods?country=${encodeURIComponent(country)}&provider=${encodeURIComponent(provider)}`,
     ),

@@ -67,11 +67,11 @@ export function SendScreen() {
     Promise.all([api.countries(), api.corridors()])
       .then(([countryList, corridorList]) => {
         if (!active) return;
-        const magmaCorridors = corridorList.filter(c => c.provider.toUpperCase() === 'MAGMA');
+        const cashrampCorridors = corridorList.filter(c => c.provider.toUpperCase() === 'CASHRAMP');
         setCountries(countryList);
-        setCorridors(magmaCorridors);
-        setDestCountry(magmaCorridors[0]?.destination_country ?? '');
-        setLoadError(magmaCorridors.length ? '' : 'Aucun corridor de transfert disponible.');
+        setCorridors(cashrampCorridors);
+        setDestCountry(cashrampCorridors[0]?.destination_country ?? '');
+        setLoadError(cashrampCorridors.length ? '' : 'Aucun corridor de transfert disponible.');
       })
       .catch(e => active && setLoadError(e instanceof Error ? e.message : 'Chargement impossible.'))
       .finally(() => active && setInitialLoading(false));
@@ -85,7 +85,7 @@ export function SendScreen() {
       return;
     }
     let active = true;
-    const provider = corridors.find(c => c.destination_country === destCountry)?.provider ?? 'MAGMA';
+    const provider = corridors.find(c => c.destination_country === destCountry)?.provider ?? 'CASHRAMP';
     setMethodsLoading(true);
     setPaymentMethod('');
     api.paymentMethods(destCountry, provider)
@@ -148,7 +148,7 @@ export function SendScreen() {
         payment_method: payload.payment_method,
         channel: payload.channel,
       });
-      if (isBeneficiaryRejected(account)) throw new Error('Le compte bénéficiaire n’a pas été validé par Magma.');
+      if (isBeneficiaryRejected(account)) throw new Error('Le compte bénéficiaire n’a pas été validé.');
       const quote = await api.fiatQuote(payload);
       setConfirmation(Object.freeze({
         payload: Object.freeze({ ...payload }),
@@ -227,7 +227,7 @@ export function SendScreen() {
         <Text style={styles.title}>Confirmer le transfert</Text>
         <View style={styles.notice}>
           <Ionicons name="shield-checkmark" size={16} color={colors.deepGreen} />
-          <Text style={styles.noticeText}>Compte bénéficiaire vérifié par Magma. Ces informations sont figées pour cette confirmation.</Text>
+          <Text style={styles.noticeText}>Compte bénéficiaire vérifié. Ces informations sont figées pour cette confirmation.</Text>
         </View>
         <Card>
           <SummaryRow icon="person-outline" label="Bénéficiaire" value={`${payload.recipient_first_name} ${payload.recipient_last_name}`} />

@@ -42,12 +42,6 @@ final class AdminProviderService
             'webhooks' => $this->settings->getWebhookUrls(),
             'cashramp' => $this->providerCard('CASHRAMP', self::CASHRAMP_KEYS),
             'sumsub' => $this->providerCard('SUMSUB', self::SUMSUB_KEYS),
-            'magma_legacy' => $this->providerCard('MAGMA', [
-                'MAGMA_API_URL',
-                'MAGMA_PRIVATE_KEY',
-                'MAGMA_SECRET_KEY',
-                'MAGMA_WEBHOOK_SECRET',
-            ]),
         ];
     }
 

@@ -13,8 +13,12 @@ use AmotPay\Admin\AdminBootstrapService;
 use AmotPay\Config\Env;
 use AmotPay\Services\MigrationRunnerService;
 
-$envFile = getenv('AMOTPAY_ENV_FILE') ?: (__DIR__ . '/../.env');
+$envFile = getenv('AMOTPAY_ENV_FILE') ?: (__DIR__ . '/../amotpay.env');
 Env::load($envFile);
+$localBootstrap = dirname(__DIR__) . '/bootstrap.local.cfg';
+if (is_file($localBootstrap)) {
+    Env::load($localBootstrap);
+}
 
 $runner = new MigrationRunnerService();
 $ran = $runner->applyPending();

@@ -13,10 +13,7 @@ final class MigrationRunnerService
     /** @return list<string> */
     public function applyPending(?string $migrationsDir = null): array
     {
-        $dir = $migrationsDir ?? dirname(__DIR__, 2) . '/migrations';
-        if (!is_dir($dir)) {
-            $dir = dirname(__DIR__, 2) . '/_migrate/migrations';
-        }
+        $dir = $migrationsDir ?? $this->resolveMigrationsDir();
         if (!is_dir($dir)) {
             throw new RuntimeException('Migrations directory not found');
         }
@@ -62,6 +59,18 @@ final class MigrationRunnerService
         }
 
         return $ran;
+    }
+
+    private function resolveMigrationsDir(): string
+    {
+        $root = dirname(__DIR__, 2);
+        foreach ([$root . '/_migrate/migrations', $root . '/migrations'] as $candidate) {
+            if (is_dir($candidate) && glob($candidate . '/*.sql')) {
+                return $candidate;
+            }
+        }
+
+        return $root . '/migrations';
     }
 
     /** @param list<string> $ran */

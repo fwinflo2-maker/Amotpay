@@ -15,7 +15,6 @@ use AmotPay\Middleware\RateLimitMiddleware;
 use AmotPay\Services\AdminService;
 use AmotPay\Services\AuthService;
 use AmotPay\Services\AuditService;
-use AmotPay\Services\MagmaService;
 use AmotPay\Services\SettingsService;
 use AmotPay\Services\TransferService;
 use AmotPay\Services\WalletService;
@@ -50,7 +49,6 @@ final class Router
             $authService = new AuthService();
             $transferService = new TransferService();
             $walletService = new WalletService();
-            $magma = new MagmaService();
             $adminSvc = new AdminService();
             $adminMw = new AdminMiddleware($adminSvc);
             $settingsSvc = new SettingsService();
@@ -64,12 +62,6 @@ final class Router
                     'api' => Version::API,
                     'environment' => Env::get('APP_ENV', 'production') ?? 'production',
                     'timestamp' => date('c'),
-                ]),
-
-                $method === 'GET' && $path === '/api/health/magma' => Response::json([
-                    'success' => true,
-                    'provider' => 'MAGMA',
-                    'status' => $magma->isConfigured() ? 'available' : 'unavailable',
                 ]),
 
                 $method === 'GET' && $path === '/api/health/cashramp' => Response::json([
@@ -111,10 +103,9 @@ final class Router
                 $method === 'GET' && $path === '/api/corridors' => $this->corridors($request, $auth),
                 $method === 'GET' && $path === '/api/payment-methods' => $this->paymentMethods($request),
 
-                $method === 'POST' && $path === '/api/beneficiary/check' => $this->checkBeneficiary($auth, $transferService, $request),
-
-                $method === 'POST' && $path === '/api/quote' => $this->fiatQuote($auth, $transferService, $request),
-                $method === 'POST' && $path === '/api/transfers' => $this->createTransfer($auth, $transferService, $request),
+                $method === 'POST' && $path === '/api/beneficiary/check' => $this->legacyTransferDisabled(),
+                $method === 'POST' && $path === '/api/quote' => $this->legacyTransferDisabled(),
+                $method === 'POST' && $path === '/api/transfers' => $this->legacyTransferDisabled(),
                 $method === 'GET' && $path === '/api/transfers' => $this->listTransfers($auth, $transferService, $request),
                 $method === 'GET' && preg_match('#^/api/transfers/(\d+)$#', $path, $m) => $this->getTransfer($auth, $transferService, $request, (int) $m[1]),
 
@@ -128,7 +119,6 @@ final class Router
                 $method === 'GET' && preg_match('#^/api/wallets/([A-Z0-9]+)$#', $path, $m) => $this->walletDetail($auth, $walletService, $m[1], $request),
                 $method === 'GET' && preg_match('#^/api/wallets/([A-Z0-9]+)/transactions$#', $path, $m) => $this->walletTransactions($auth, $walletService, $request, $m[1]),
 
-                $method === 'POST' && $path === '/api/webhooks/magma' => $this->magmaWebhook($transferService, $request),
                 $method === 'POST' && $path === '/api/webhooks/cashramp' => $this->cashrampWebhook($request),
                 $method === 'POST' && $path === '/api/webhooks/sumsub' => $this->sumsubWebhook($request),
 
@@ -146,8 +136,7 @@ final class Router
                 $method === 'POST' && $path === '/api/admin/account/2fa/disable' => $this->adminDisableTwoFactor($adminMw, $adminSvc, $request),
                 $method === 'GET' && $path === '/api/admin/providers' => $this->adminGetProviders($adminMw, $settingsSvc, $request),
                 $method === 'PUT' && $path === '/api/admin/providers' => $this->adminSaveProviders($adminMw, $settingsSvc, $request),
-                $method === 'GET' && $path === '/api/admin/magma-setup' => $this->adminMagmaSetup($adminMw, $settingsSvc, $request),
-                $method === 'GET' && $path === '/api/admin/health-check' => $this->adminHealthCheck($adminMw, $request, $magma),
+                $method === 'GET' && $path === '/api/admin/health-check' => $this->adminHealthCheck($adminMw, $request),
                 $method === 'GET' && $path === '/api/admin/dashboard' => $this->adminDashboard($adminMw, $request),
                 $method === 'GET' && $path === '/api/admin/providers/overview' => $this->adminProvidersOverview($adminMw, $request),
                 $method === 'PUT' && $path === '/api/admin/providers/cashramp' => $this->adminSaveProvider($adminMw, $request, 'CASHRAMP'),
@@ -173,10 +162,6 @@ final class Router
                 $method === 'GET' && $path === '/api/admin/webhooks' => $this->adminList($adminMw, $request, $adminSvc, 'webhooks'),
                 $method === 'GET' && $path === '/api/admin/audits' => $this->adminList($adminMw, $request, $adminSvc, 'audits'),
                 $method === 'GET' && $path === '/api/admin/errors' => $this->adminList($adminMw, $request, $adminSvc, 'errors'),
-                $method === 'GET' && $path === '/api/admin/magma/balance' => $this->adminMagma($adminMw, $request, $magma, 'balance'),
-                $method === 'GET' && $path === '/api/admin/magma/methods' => $this->adminMagma($adminMw, $request, $magma, 'methods'),
-                $method === 'GET' && $path === '/api/admin/magma/history' => $this->adminMagma($adminMw, $request, $magma, 'history'),
-
                 default => Response::error('Not found', 404, 'NOT_FOUND'),
             };
         } catch (ApiException $e) {
@@ -252,28 +237,49 @@ final class Router
         Response::json(['success' => true, 'data' => $stmt->fetchAll()]);
     }
 
-    private function checkBeneficiary(AuthMiddleware $authMw, TransferService $svc, Request $request): void
+    private function adminGetProviders(AdminMiddleware $mw, SettingsService $settings, Request $request): void
     {
-        $user = $authMw->handle($request);
-        $result = $svc->checkBeneficiary($user, $request->body);
-        Response::json(['success' => true, 'data' => $result]);
+        $mw->handle($request);
+        Response::json([
+            'success' => true,
+            'data' => [
+                'providers' => $settings->getMaskedForAdmin(),
+                'cashramp_setup' => $settings->getCashrampSetupUrls(),
+                'sumsub_setup' => $settings->getSumsubSetupUrls(),
+                'webhooks' => $settings->getWebhookUrls(),
+            ],
+        ]);
     }
 
-    private function fiatQuote(AuthMiddleware $authMw, TransferService $svc, Request $request): void
-    {
-        $user = $authMw->handle($request);
-        $quote = $svc->createQuote($user, $request->body);
-        $quote['legacy'] = true;
-        $quote['provider'] = 'MAGMA';
-        Response::json(['success' => true, 'data' => $quote]);
+    private function adminSaveProviders(
+        AdminMiddleware $mw,
+        SettingsService $settings,
+        Request $request
+    ): void {
+        $mw->handle($request);
+        $settings->setMany($request->body);
+        AuditService::log('admin.providers.update', null, 'provider', 'settings', $request->clientIp());
+        Response::json([
+            'success' => true,
+            'data' => [
+                'providers' => $settings->getMaskedForAdmin(),
+            ],
+        ]);
     }
 
-    private function createTransfer(AuthMiddleware $authMw, TransferService $svc, Request $request): void
-    {
-        $user = $authMw->handle($request);
-        $tx = $svc->createTransfer($user, $request->body, $request->idempotencyKey());
-        AuditService::log('transfer.create', (int) $user['id'], 'transaction', (string) $tx['id'], $request->clientIp(), ['reference' => $tx['reference']]);
-        Response::json(['success' => true, 'data' => $tx], 201);
+    private function adminHealthCheck(
+        AdminMiddleware $mw,
+        Request $request
+    ): void {
+        $mw->handle($request);
+        Response::json([
+            'success' => true,
+            'data' => [
+                'cashramp' => (new CashrampAdapter())->healthCheck(),
+                'sumsub' => (new SumsubAdapter())->healthCheck(),
+                'app_url' => rtrim(Env::get('APP_URL', 'https://amotpay-api.nexustechnologies.cloud') ?? '', '/'),
+            ],
+        ]);
     }
 
     private function listTransfers(AuthMiddleware $authMw, TransferService $svc, Request $request): void
@@ -326,18 +332,6 @@ final class Router
     {
         $user = $authMw->handle($request);
         Response::json(['success' => true, 'data' => $svc->getTransactions((int) $user['id'], $asset)]);
-    }
-
-    private function magmaWebhook(TransferService $svc, Request $request): void
-    {
-        $settings = new SettingsService();
-        $secret = $settings->get('MAGMA_WEBHOOK_SECRET') ?? '';
-        $signature = trim((string) ($request->headers['x-signature'] ?? ''));
-        if (!MagmaService::verifyWebhookSignature($request->body, $signature, $secret)) {
-            Response::error('Invalid webhook signature', 401, 'INVALID_WEBHOOK_SIGNATURE');
-        }
-        $processed = $svc->handleWebhook($request->body);
-        Response::json(['success' => true, 'duplicate' => !$processed]);
     }
 
     private function adminLogin(AdminService $admin, Request $request): void
@@ -465,61 +459,6 @@ final class Router
         Response::json(['success' => true]);
     }
 
-    private function adminGetProviders(AdminMiddleware $mw, SettingsService $settings, Request $request): void
-    {
-        $mw->handle($request);
-        Response::json([
-            'success' => true,
-            'data' => [
-                'providers' => $settings->getMaskedForAdmin(),
-                'magma_setup' => $settings->getMagmaSetupUrls(),
-                'cashramp_setup' => $settings->getCashrampSetupUrls(),
-                'sumsub_setup' => $settings->getSumsubSetupUrls(),
-                'webhooks' => $settings->getWebhookUrls(),
-            ],
-        ]);
-    }
-
-    private function adminSaveProviders(
-        AdminMiddleware $mw,
-        SettingsService $settings,
-        Request $request
-    ): void {
-        $mw->handle($request);
-        $settings->setMany($request->body);
-        AuditService::log('admin.providers.update', null, 'provider', 'MAGMA', $request->clientIp());
-        Response::json([
-            'success' => true,
-            'data' => [
-                'providers' => $settings->getMaskedForAdmin(),
-                'health' => ['magma' => (new MagmaService())->healthCheck()],
-            ],
-        ]);
-    }
-
-    private function adminMagmaSetup(AdminMiddleware $mw, SettingsService $settings, Request $request): void
-    {
-        $mw->handle($request);
-        Response::json(['success' => true, 'data' => $settings->getMagmaSetupUrls()]);
-    }
-
-    private function adminHealthCheck(
-        AdminMiddleware $mw,
-        Request $request,
-        MagmaService $magma
-    ): void {
-        $mw->handle($request);
-        Response::json([
-            'success' => true,
-            'data' => [
-                'magma' => $magma->healthCheck(true),
-                'cashramp' => (new CashrampAdapter())->healthCheck(),
-                'sumsub' => (new SumsubAdapter())->healthCheck(),
-                'app_url' => rtrim(Env::get('APP_URL', 'https://amotpay-api.nexustechnologies.cloud') ?? '', '/'),
-            ],
-        ]);
-    }
-
     private function adminList(AdminMiddleware $mw, Request $request, AdminService $admin, string $resource): void
     {
         $mw->handle($request);
@@ -548,20 +487,14 @@ final class Router
         Response::json(['success' => true, 'data' => $user]);
     }
 
-    private function adminMagma(AdminMiddleware $mw, Request $request, MagmaService $magma, string $resource): void
-    {
-        $mw->handle($request);
-        $data = match ($resource) {
-            'balance' => $magma->getBalance(),
-            'methods' => $magma->getAvailableMethods(),
-            'history' => $magma->getTransferHistory($request->query),
-        };
-        Response::json(['success' => true, 'data' => $data]);
-    }
-
     private function featureDisabled(): void
     {
         Response::error('Crypto features are no longer available', 410, 'FEATURE_DISABLED');
+    }
+
+    private function legacyTransferDisabled(): void
+    {
+        Response::error('Legacy v1 transfer routes are no longer available', 410, 'FEATURE_DISABLED');
     }
 
     private function kycStatus(AuthMiddleware $authMw, Request $request): void

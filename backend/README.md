@@ -1,18 +1,15 @@
 # AmotPay backend
 
-Fiat-only PHP API using the documented Magma OnePay payout API. Legacy crypto tables and read-only history routes remain solely for existing data.
+PHP API for global transfers via **Cashramp** and identity verification via **Sumsub**.
 
-`POST /api/crypto/quote`, `POST /api/crypto/buy`, `POST /api/crypto/mark-paid`, `GET /api/crypto/assets`, the Cashramp webhook, and Cashramp health all return `410 FEATURE_DISABLED`. `GET /api/crypto/transactions` and wallet reads remain authenticated and read-only for historical data.
+`POST /api/beneficiary/check`, `POST /api/quote`, `POST /api/transfers`, `POST /api/crypto/quote`, `POST /api/crypto/buy`, `POST /api/crypto/mark-paid`, and `GET /api/crypto/assets` all return `410 FEATURE_DISABLED`. `GET /api/transfers`, `GET /api/crypto/transactions`, and wallet reads remain available for historical data.
 
 ## Operations
 
 - Run migrations from CLI only: `php bin/migrate.php`.
 - Run autonomous tests: `php tests/run.php`.
-- Configure Magma credentials and `MAGMA_WEBHOOK_SECRET` outside version control.
-- Keep `MAGMA_PAYOUTS_ENABLED=false` until Magma credentials, outbound IP allowlisting, webhook delivery, prefunded balances, and reconciliation have been tested in sandbox.
-- Approve each payout user with `PATCH /api/admin/users/{id}` and `{"payout_enabled":true}`.
-
-Magma documents payout execution against the merchant's prefunded country balances, but no FX quote or fee quote endpoint. AmotPay therefore accepts only same-currency transfers, applies no application fee, reports the provider fee as unknown, and rejects cross-currency quotes with `QUOTE_UNAVAILABLE`. Customer collection is not chained automatically to payout; adding that flow requires an explicit product and reconciliation design. Until then, only trusted operator accounts should receive `payout_enabled`; ordinary customer accounts remain blocked.
+- Configure Cashramp and Sumsub credentials outside version control.
+- Use `POST /api/v2/quote` and `POST /api/v2/transfers` for new transfer flows.
 
 ## Admin API
 
@@ -27,11 +24,5 @@ All routes except login require an admin bearer token. List routes accept `limit
 - `GET /api/admin/audits`: filters `action`, `user_id`.
 - `GET /api/admin/errors`.
 - `GET|PUT /api/admin/providers`: configuration state is masked; secret values are never returned.
-- `GET /api/admin/health-check`.
-- `GET /api/admin/magma/balance`.
-- `GET /api/admin/magma/methods`.
-- `GET /api/admin/magma/history`: forwards only documented filters `start_date`, `end_date`, `channel`, `currency`, `status`.
-
-Live provider calls and end-to-end webhook verification cannot be validated without Magma sandbox credentials, an allowlisted public outbound IP, a public HTTPS webhook URL, and a prefunded sandbox balance.
-
-Magma does not document a signed webhook timestamp. Replay protection therefore uses a unique hash of the signed event data plus event type and atomic database processing; no undocumented timestamp rule is imposed.
+- `GET /api/admin/health-check`: Cashramp and Sumsub connectivity.
+- `GET /api/admin/providers/overview`: Cashramp and Sumsub credential cards.
