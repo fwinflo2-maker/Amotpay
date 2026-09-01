@@ -8,7 +8,7 @@ SET NAMES utf8mb4;
 -- Users: KYC columns
 -- ---------------------------------------------------------------------------
 ALTER TABLE users
-    ADD COLUMN kyc_status VARCHAR(32) NOT NULL DEFAULT 'NOT_STARTED' AFTER payout_enabled,
+    ADD COLUMN kyc_status VARCHAR(32) NOT NULL DEFAULT 'NOT_STARTED' AFTER status,
     ADD COLUMN sumsub_applicant_id VARCHAR(64) NULL AFTER kyc_status,
     ADD COLUMN kyc_verified_at TIMESTAMP NULL AFTER sumsub_applicant_id,
     ADD COLUMN cashramp_customer_id VARCHAR(64) NULL AFTER kyc_verified_at,

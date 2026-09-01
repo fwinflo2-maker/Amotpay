@@ -20,6 +20,7 @@ use AmotPay\Services\SettingsService;
 use AmotPay\Services\TransferService;
 use AmotPay\Services\WalletService;
 use AmotPay\Services\MigrationStatusService;
+use AmotPay\Services\MigrationRunnerService;
 use AmotPay\Admin\AdminProviderService;
 use AmotPay\Admin\AdminDashboardService;
 use AmotPay\Core\Capability\CashrampCapabilityEngine;
@@ -144,6 +145,7 @@ final class Router
                 $method === 'GET' && $path === '/api/admin/countries' => $this->adminCountries($adminMw, $request),
                 $method === 'GET' && $path === '/api/admin/payment-methods' => $this->adminPaymentMethods($adminMw, $request),
                 $method === 'GET' && $path === '/api/admin/migrations' => $this->adminMigrations($adminMw, $request),
+                $method === 'POST' && $path === '/api/admin/migrations/apply' => $this->adminApplyMigrations($adminMw, $request),
                 $method === 'GET' && $path === '/api/admin/transfers/v2' => $this->adminV2Transfers($adminMw, $request),
                 $method === 'GET' && $path === '/api/admin/ledger' => $this->adminLedger($adminMw, $request),
                 $method === 'GET' && $path === '/api/admin/reconciliation' => $this->adminReconciliation($adminMw, $request),
@@ -590,6 +592,19 @@ final class Router
     {
         $mw->handle($request);
         Response::json(['success' => true, 'data' => (new MigrationStatusService())->status()]);
+    }
+
+    private function adminApplyMigrations(AdminMiddleware $mw, Request $request): void
+    {
+        $mw->handle($request);
+        $ran = (new MigrationRunnerService())->applyPending();
+        Response::json([
+            'success' => true,
+            'data' => [
+                'applied' => $ran,
+                'status' => (new MigrationStatusService())->status(),
+            ],
+        ]);
     }
 
     private function onboardingCashramp(AuthMiddleware $authMw, Request $request): void

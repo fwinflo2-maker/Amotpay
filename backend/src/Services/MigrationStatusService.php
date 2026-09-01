@@ -29,15 +29,20 @@ final class MigrationStatusService
     /** @return array<string, mixed> */
     public function status(): array
     {
-        $pdo = Database::connection();
-        $applied = $pdo->query('SELECT migration, applied_at FROM schema_migrations ORDER BY migration')
-            ->fetchAll();
+        try {
+            $pdo = Database::connection();
+            $applied = $this->fetchAppliedMigrations($pdo);
+        } catch (\Throwable $e) {
+            return $this->pendingStatus('database_unavailable: ' . $e->getMessage());
+        }
+
+        if ($applied === null) {
+            return $this->pendingStatus('schema_migrations_missing');
+        }
 
         $migration005 = $this->findMigration($applied, '005_global_platform_foundation.sql');
         $migration006 = $this->findMigration($applied, '006_admin_providers_rbac.sql');
-
         $migration007 = $this->findMigration($applied, '007_reconciliation.sql');
-
         $tables = $this->verifyTables($pdo);
 
         return [
@@ -58,7 +63,38 @@ final class MigrationStatusService
             'tables' => $tables,
             'ready' => $migration005 !== null
                 && $migration006 !== null
+                && $migration007 !== null
                 && $tables['missing'] === [],
+        ];
+    }
+
+    /** @return array<int, array<string, mixed>>|null */
+    private function fetchAppliedMigrations(\PDO $pdo): ?array
+    {
+        $exists = $pdo->query(
+            "SELECT COUNT(*) FROM information_schema.tables
+             WHERE table_schema = DATABASE() AND table_name = 'schema_migrations'"
+        )->fetchColumn();
+        if ((int) $exists === 0) {
+            return null;
+        }
+
+        return $pdo->query('SELECT migration, applied_at FROM schema_migrations ORDER BY migration')->fetchAll();
+    }
+
+    /** @return array<string, mixed> */
+    private function pendingStatus(string $reason): array
+    {
+        $pending = ['status' => 'PENDING', 'applied_at' => null];
+        return [
+            'migrations' => [
+                '005_global_platform_foundation.sql' => $pending,
+                '006_admin_providers_rbac.sql' => $pending,
+                '007_reconciliation.sql' => $pending,
+            ],
+            'tables' => ['present' => [], 'missing' => self::REQUIRED_TABLES],
+            'ready' => false,
+            'note' => $reason,
         ];
     }
 
