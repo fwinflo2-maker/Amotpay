@@ -47,6 +47,12 @@ Because the file was public HTTP 200, rotate:
 - Cashramp API keys (Cashramp dashboard)
 - Sumsub credentials (Sumsub dashboard)
 
+Generate new local values (paste into Hostinger only, never commit):
+
+```powershell
+.\scripts\generate-hostinger-secrets.ps1
+```
+
 ## Step 5 — Verify
 
 ```powershell
