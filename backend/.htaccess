@@ -1,0 +1,18 @@
+# Protect sensitive files
+<Files "amotpay.env">
+    Require all denied
+</Files>
+<Files ".env">
+    Require all denied
+</Files>
+<FilesMatch "(?i)^(amotpay\.env|\.env.*|.*\.sql|.*\.key|.*\.pem|.*\.log)$">
+    Require all denied
+</FilesMatch>
+RedirectMatch 403 ^/amotpay/vendor/
+RedirectMatch 403 ^/amotpay/src/
+RedirectMatch 403 ^/amotpay/migrations/
+
+# Route API requests to the only public bootstrap.
+RewriteEngine On
+RewriteBase /amotpay/
+RewriteRule ^(?:api|rest)(/.*)?$ public/index.php [QSA,L]

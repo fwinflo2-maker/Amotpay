@@ -1,0 +1,33 @@
+Options -Indexes
+ServerSignature Off
+
+<IfModule mod_authz_core.c>
+    <Files "amotpay.env">
+        Require all denied
+    </Files>
+    <FilesMatch "(?i)(^\.|amotpay\.env$|\.env(?:\..*)?$|\.(?:env|sql|zip|7z|rar|tar|gz|tgz|apk|aab|jks|keystore|p12|pfx|pem|key)$|(?:^|[-_.])migrat(?:e|ion)[^/]*\.php$)">
+        Require all denied
+    </FilesMatch>
+</IfModule>
+
+<IfModule mod_headers.c>
+    Header always unset X-Powered-By
+    Header always set X-Content-Type-Options "nosniff"
+    Header always set X-Frame-Options "DENY"
+    Header always set Referrer-Policy "no-referrer"
+    Header always set Permissions-Policy "camera=(), microphone=(), geolocation=(), payment=()"
+    Header always set Content-Security-Policy "default-src 'none'; frame-ancestors 'none'; base-uri 'none'"
+    Header always set Strict-Transport-Security "max-age=31536000"
+    Header always set Cache-Control "no-store"
+</IfModule>
+
+RewriteEngine On
+RewriteRule "(^|/)\." - [F,L,NC]
+RewriteRule ^amotpay\.env$ - [F,L,NC]
+RewriteRule ^\.env - [F,L,NC]
+RewriteRule "^(?:src|vendor|migrations?)(?:/|$)" - [F,L,NC]
+RewriteRule "(^|/)[^/]*migrat(?:e|ion)[^/]*\.php$" - [F,L,NC]
+RewriteRule "(^|/)[^/]*\.(?:env|sql|zip|7z|rar|tar|gz|tgz|bz2|xz|apk|aab|jks|keystore|p12|pfx|pem|key)$" - [F,L,NC]
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^ index.php [QSA,L]

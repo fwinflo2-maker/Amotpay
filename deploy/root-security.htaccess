@@ -1,0 +1,24 @@
+# Deploy at subdomain document root (e.g. amotpay-api.nexustechnologies.cloud)
+# Blocks public download of configuration files — including amotpay.env
+
+Options -Indexes
+ServerSignature Off
+
+<IfModule mod_authz_core.c>
+    <Files "amotpay.env">
+        Require all denied
+    </Files>
+    <Files ".env">
+        Require all denied
+    </Files>
+    <FilesMatch "(?i)^(?:\.env.*|amotpay\.env|.*\.(?:sql|key|pem|log|bak))$">
+        Require all denied
+    </FilesMatch>
+</IfModule>
+
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteRule ^amotpay\.env$ - [F,L,NC]
+    RewriteRule ^\.env - [F,L,NC]
+    RewriteRule \.env(\.|$) - [F,L,NC]
+</IfModule>
