@@ -40,6 +40,24 @@ build/Release
 # Dependency directories
 node_modules/
 jspm_packages/
+vendor/
+
+# Sensitive files and production data
+uploads/
+backups/
+*.sql
+*.sql.gz
+*.dump
+*.key
+*.pem
+*.p12
+*.pfx
+*.secret
+
+# PHP tooling/runtime
+composer.phar
+.phpunit.result.cache
+.php-cs-fixer.cache
 
 # Snowpack dependency directory (https://snowpack.dev/)
 web_modules/
