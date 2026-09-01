@@ -13,7 +13,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { AuthInput } from '../../components/auth/AuthInput';
-import { FlowMark } from '../../components/FlowMark';
+import { AmotpayLogo } from '../../components/AmotpayLogo';
 import { PrimaryButton } from '../../components/PrimaryButton';
 import { useAuth } from '../../context/AuthContext';
 import { useTheme } from '../../context/ThemeContext';
@@ -56,7 +56,7 @@ export function LoginScreen({ navigation }: Props) {
         keyboardShouldPersistTaps="handled"
       >
         <View style={styles.header}>
-          <FlowMark size={44} />
+          <AmotpayLogo size={44} />
           <Text style={[theme.type.display, { marginTop: spacing.lg }]}>{t('auth.welcomeBack')}</Text>
           <Text style={[theme.type.caption, { marginTop: spacing.sm }]}>{t('auth.tagline')}</Text>
         </View>

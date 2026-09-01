@@ -1,4 +1,4 @@
-/* Nexus Technologies design tokens — aligned with nexustechnologies.cloud */
+/* AMOTPay admin — Nexus-inspired layout, AMOTPay gold identity */
 @import url('https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=Manrope:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap');
 
 :root {
@@ -8,8 +8,8 @@
   --lp-ink: #eef1f6;
   --lp-muted: #8b98ad;
   --lp-line: #2a3548;
-  --lp-signal: #4f6ef7;
-  --lp-signal-hover: #3d5ce8;
+  --lp-signal: #c9a227;
+  --lp-signal-hover: #b8921f;
   --lp-live: #3ddc97;
   --lp-display: 'Syne', system-ui, sans-serif;
   --lp-body: 'Manrope', system-ui, sans-serif;
@@ -22,7 +22,7 @@
   --bg-input: rgba(255, 255, 255, 0.06);
   --border: rgba(255, 255, 255, 0.08);
   --border-soft: rgba(255, 255, 255, 0.05);
-  --border-focus: rgba(79, 110, 247, 0.6);
+  --border-focus: rgba(201, 162, 39, 0.55);
   --text: var(--lp-ink);
   --text-muted: var(--lp-muted);
   --text-heading: #f8fafc;
@@ -38,7 +38,7 @@
   --radius-xl: 24px;
   --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.4);
   --shadow-md: 0 8px 32px rgba(0, 0, 0, 0.5);
-  --shadow-signal: 0 4px 20px rgba(79, 110, 247, 0.35);
+  --shadow-signal: 0 4px 20px rgba(201, 162, 39, 0.28);
   color-scheme: dark;
 }
 
@@ -73,6 +73,18 @@ h3 {
   letter-spacing: -0.02em;
 }
 
+.amotpay-lockup {
+  display: inline-flex;
+  align-items: center;
+}
+
+.amotpay-lockup-text {
+  font-family: var(--lp-display);
+  letter-spacing: 0.12em;
+  font-weight: 700;
+  color: var(--lp-ink);
+}
+
 /* ── Ambient backgrounds ───────────────────────────── */
 
 .dash-ambient,
@@ -89,8 +101,8 @@ h3 {
   position: absolute;
   inset: 0;
   background-image:
-    linear-gradient(rgba(79, 110, 247, 0.04) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(79, 110, 247, 0.04) 1px, transparent 1px);
+    linear-gradient(rgba(201, 162, 39, 0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(201, 162, 39, 0.04) 1px, transparent 1px);
   background-size: 48px 48px;
   mask-image: radial-gradient(ellipse 80% 70% at 50% 30%, black, transparent 75%);
 }
@@ -108,7 +120,7 @@ h3 {
   height: 480px;
   top: -120px;
   left: -80px;
-  background: rgba(79, 110, 247, 0.18);
+  background: rgba(201, 162, 39, 0.18);
 }
 
 .dash-glow--b {
@@ -123,7 +135,7 @@ h3 {
   position: absolute;
   inset: 0;
   opacity: 0.35;
-  background: repeating-linear-gradient(transparent 0 3px, rgba(79, 110, 247, 0.03) 3px 4px);
+  background: repeating-linear-gradient(transparent 0 3px, rgba(201, 162, 39, 0.03) 3px 4px);
   mask-image: linear-gradient(#000, transparent 85%);
 }
 
@@ -205,8 +217,8 @@ h3 {
 
 .nav-link--active {
   color: var(--lp-ink);
-  background: rgba(79, 110, 247, 0.12);
-  box-shadow: inset 0 0 0 1px rgba(79, 110, 247, 0.25);
+  background: rgba(201, 162, 39, 0.12);
+  box-shadow: inset 0 0 0 1px rgba(201, 162, 39, 0.25);
 }
 
 .sidebar-footer {
@@ -307,7 +319,7 @@ h3 {
 
 .stat-card:hover {
   background: var(--bg-card-hover);
-  border-color: rgba(79, 110, 247, 0.2);
+  border-color: rgba(201, 162, 39, 0.2);
 }
 
 .stat-label {
@@ -359,9 +371,9 @@ h3 {
 }
 
 .badge--accent {
-  background: rgba(79, 110, 247, 0.15);
-  color: #9cb0ff;
-  border: 1px solid rgba(79, 110, 247, 0.3);
+  background: rgba(201, 162, 39, 0.15);
+  color: #d4bc6a;
+  border: 1px solid rgba(201, 162, 39, 0.3);
 }
 
 .badge--success {
@@ -428,7 +440,7 @@ h3 {
 
 .btn--secondary:hover:not(:disabled) {
   border-color: var(--lp-signal);
-  background: rgba(79, 110, 247, 0.08);
+  background: rgba(201, 162, 39, 0.08);
 }
 
 .btn--ghost {
@@ -496,7 +508,7 @@ textarea:focus {
   outline: none;
   border-color: var(--border-focus);
   background: rgba(255, 255, 255, 0.08);
-  box-shadow: 0 0 0 3px rgba(79, 110, 247, 0.15);
+  box-shadow: 0 0 0 3px rgba(201, 162, 39, 0.15);
 }
 
 input::placeholder {
@@ -536,7 +548,7 @@ tbody tr {
 }
 
 tbody tr:hover {
-  background: rgba(79, 110, 247, 0.05);
+  background: rgba(201, 162, 39, 0.05);
 }
 
 tbody tr:last-child td {
@@ -563,9 +575,9 @@ code {
 }
 
 .alert--info {
-  background: rgba(79, 110, 247, 0.1);
-  border-color: rgba(79, 110, 247, 0.25);
-  color: #b8c8ff;
+  background: rgba(201, 162, 39, 0.1);
+  border-color: rgba(201, 162, 39, 0.25);
+  color: #e8d9a8;
 }
 
 .alert--success {

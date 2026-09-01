@@ -18,7 +18,7 @@ import { useHomeData } from '../../hooks/useHomeData';
 import { isFeatureAvailable } from '../../api';
 import { EmptyState } from '../../components/EmptyState';
 import { ErrorState } from '../../components/ErrorState';
-import { FlowMark } from '../../components/FlowMark';
+import { AmotpayLogo } from '../../components/AmotpayLogo';
 import { PrimaryButton } from '../../components/PrimaryButton';
 import { SkeletonCard } from '../../components/Skeleton';
 import { StatusBadge } from '../../components/StatusBadge';
@@ -83,7 +83,7 @@ export function HomeScreen() {
             <Text style={theme.type.titleInverse}>{user?.first_name ?? t('brand')}</Text>
           </View>
           <View style={styles.heroActions}>
-            <FlowMark size={40} />
+            <AmotpayLogo size={40} showWordmark={false} inverse />
             <Pressable
               onPress={() => navigation.navigate('Settings')}
               style={styles.iconBtn}

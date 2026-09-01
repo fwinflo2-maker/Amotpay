@@ -10,7 +10,7 @@ import {
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
-import { FlowMark } from '../../components/FlowMark';
+import { AmotpayLogo } from '../../components/AmotpayLogo';
 import { PrimaryButton } from '../../components/PrimaryButton';
 import { useTheme } from '../../context/ThemeContext';
 import { markOnboardingComplete } from '../../context/session';
@@ -59,7 +59,7 @@ export function OnboardingScreen({ onDone }: Props) {
   return (
     <View style={[styles.flex, { backgroundColor: theme.colors.background, paddingTop: insets.top + spacing.lg }]}>
       <View style={styles.brandRow}>
-        <FlowMark size={36} />
+        <AmotpayLogo size={36} />
         <Text style={[theme.type.heading, { marginLeft: spacing.sm }]}>{t('brand')}</Text>
       </View>
 

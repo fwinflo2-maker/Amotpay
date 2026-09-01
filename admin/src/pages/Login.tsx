@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { login } from '../api';
-import { NexusLogo } from '../components/NexusLogo';
+import { AmotpayLogo } from '../components/AmotpayLogo';
 import { Button } from '../components/ui';
 
 export function LoginPage() {
@@ -35,8 +35,7 @@ export function LoginPage() {
       <header className="lp-nav">
         <div className="lp-nav-inner">
           <div className="lp-brand">
-            <NexusLogo size={30} />
-            <span className="lp-brand-text">AMOTPAY</span>
+          <AmotpayLogo size={30} variant="lockup" />
           </div>
           <span className="lp-nav-meta">Admin</span>
         </div>

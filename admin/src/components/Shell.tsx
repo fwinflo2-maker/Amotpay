@@ -1,6 +1,6 @@
 import { Link, useLocation } from 'react-router-dom';
 import { setToken } from '../api';
-import { NexusLogo } from './NexusLogo';
+import { AmotpayLogo } from './AmotpayLogo';
 
 const NAV = [
   { to: '/', label: 'Dashboard', icon: 'grid' },
@@ -89,7 +89,7 @@ export function Shell({ children }: { children: React.ReactNode }) {
 
       <aside className="sidebar">
         <div className="sidebar-logo">
-          <NexusLogo size={34} />
+          <AmotpayLogo size={34} />
           <div>
             <span className="sidebar-title">AMOTPay</span>
             <span className="sidebar-tag">Admin console</span>

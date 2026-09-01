@@ -14,6 +14,7 @@ import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { api, ApiError } from '../../api';
 import type { Country } from '../../api/types';
 import { AuthInput } from '../../components/auth/AuthInput';
+import { AmotpayLogo } from '../../components/AmotpayLogo';
 import { PrimaryButton } from '../../components/PrimaryButton';
 import { useAuth } from '../../context/AuthContext';
 import { useTheme } from '../../context/ThemeContext';
@@ -69,6 +70,7 @@ export function RegisterScreen({ navigation }: Props) {
         contentContainerStyle={[styles.content, { paddingTop: insets.top + spacing.lg, paddingBottom: insets.bottom + spacing.lg }]}
         keyboardShouldPersistTaps="handled"
       >
+        <AmotpayLogo size={40} style={{ marginBottom: spacing.lg }} />
         <Text style={theme.type.display}>{t('auth.createAccount')}</Text>
         <Text style={[theme.type.caption, { marginTop: spacing.sm, marginBottom: spacing.lg }]}>{t('auth.createSubtitle')}</Text>
 
