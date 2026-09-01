@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { api } from '../api';
-import { Alert, Badge, Button, Card, Field, LoadingState, PageHeader } from '../components/ui';
+import { Alert, Badge, Button, Card, Field, LoadingState, PageHeader, PasswordInput } from '../components/ui';
 
 type AccountInfo = {
   username: string;
@@ -224,8 +224,7 @@ export function SettingsPage() {
               <input value={newUsername} onChange={(e) => setNewUsername(e.target.value)} minLength={3} required />
             </Field>
             <Field label="Mot de passe actuel (confirmation)">
-              <input
-                type="password"
+              <PasswordInput
                 value={currentPassword}
                 onChange={(e) => setCurrentPassword(e.target.value)}
                 autoComplete="current-password"
@@ -242,8 +241,7 @@ export function SettingsPage() {
           <h2>Mot de passe</h2>
           <form onSubmit={changePassword}>
             <Field label="Mot de passe actuel">
-              <input
-                type="password"
+              <PasswordInput
                 value={currentPassword}
                 onChange={(e) => setCurrentPassword(e.target.value)}
                 autoComplete="current-password"
@@ -251,8 +249,7 @@ export function SettingsPage() {
               />
             </Field>
             <Field label="Nouveau mot de passe" hint="Min. 8 caractères, lettres et chiffres">
-              <input
-                type="password"
+              <PasswordInput
                 value={newPassword}
                 onChange={(e) => setNewPassword(e.target.value)}
                 autoComplete="new-password"
@@ -261,8 +258,7 @@ export function SettingsPage() {
               />
             </Field>
             <Field label="Confirmer le nouveau mot de passe">
-              <input
-                type="password"
+              <PasswordInput
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
                 autoComplete="new-password"

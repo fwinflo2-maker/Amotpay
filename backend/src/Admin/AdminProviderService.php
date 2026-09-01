@@ -282,9 +282,9 @@ final class AdminProviderService
     private function providerEnvironment(string $provider, array $credentials): ?string
     {
         if ($provider === 'CASHRAMP') {
-            $env = $this->settings->get('CASHRAMP_ENVIRONMENT', 'sandbox');
+            $env = $this->settings->get('CASHRAMP_ENVIRONMENT', 'production');
 
-            return $env ?? 'sandbox';
+            return $env ?? 'production';
         }
         if ($provider === 'SUMSUB') {
             return $this->settings->get('SUMSUB_LEVEL_NAME', 'id-and-liveness');

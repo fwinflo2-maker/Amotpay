@@ -8,6 +8,7 @@ import {
   Field,
   LoadingState,
   PageHeader,
+  PasswordInput,
 } from '../components/ui';
 
 type ProviderCard = {
@@ -90,11 +91,11 @@ export function ProvidersPage() {
   const [msg, setMsg] = useState('');
   const [msgTone, setMsgTone] = useState<'info' | 'success' | 'error'>('info');
   const [cashrampForm, setCashrampForm] = useState({
-    CASHRAMP_API_URL: 'https://staging.api.useaccrue.com/cashramp/api/graphql',
+    CASHRAMP_API_URL: 'https://api.useaccrue.com/cashramp/api/graphql',
     CASHRAMP_PUBLIC_KEY: '',
     CASHRAMP_SECRET_KEY: '',
     CASHRAMP_WEBHOOK_SECRET: '',
-    CASHRAMP_ENVIRONMENT: 'sandbox',
+    CASHRAMP_ENVIRONMENT: 'production',
   });
   const [sumsubForm, setSumsubForm] = useState({
     SUMSUB_BASE_URL: 'https://api.sumsub.com',
@@ -131,7 +132,10 @@ export function ProvidersPage() {
   async function save(provider: 'cashramp' | 'sumsub') {
     setMsg('');
     try {
-      const body = provider === 'cashramp' ? cashrampForm : sumsubForm;
+      const body =
+        provider === 'cashramp'
+          ? { ...cashrampForm, CASHRAMP_ENVIRONMENT: 'production' }
+          : sumsubForm;
       await api(`/admin/providers/${provider}`, { method: 'PUT', body: JSON.stringify(body) });
       setMsgTone('success');
       setMsg(`${provider} : identifiants enregistrés (chiffrés côté serveur)`);
@@ -197,15 +201,14 @@ export function ProvidersPage() {
 
           <MaskedCredentials card={data.cashramp} />
 
-          <Field label="URL API GraphQL" hint="Sandbox : staging.api.useaccrue.com">
+          <Field label="URL API GraphQL" hint="Production : api.useaccrue.com">
             <input
               value={cashrampForm.CASHRAMP_API_URL}
               onChange={(e) => setCashrampForm({ ...cashrampForm, CASHRAMP_API_URL: e.target.value })}
             />
           </Field>
-          <Field label="Clé API (Public key)" hint="Clé publique sandbox Cashramp">
-            <input
-              type="password"
+          <Field label="Clé API (Public key)" hint="Clé publique production Cashramp">
+            <PasswordInput
               autoComplete="off"
               placeholder="Saisir la clé API"
               value={cashrampForm.CASHRAMP_PUBLIC_KEY}
@@ -213,8 +216,7 @@ export function ProvidersPage() {
             />
           </Field>
           <Field label="Clé secrète (Secret key)" hint="Jamais affichée après enregistrement">
-            <input
-              type="password"
+            <PasswordInput
               autoComplete="off"
               placeholder="Saisir la clé secrète"
               value={cashrampForm.CASHRAMP_SECRET_KEY}
@@ -222,23 +224,14 @@ export function ProvidersPage() {
             />
           </Field>
           <Field label="Webhook token" hint="Token configuré dans Cashramp (Settings → Webhooks). Jamais affiché après enregistrement.">
-            <input
-              type="password"
+            <PasswordInput
               autoComplete="off"
               placeholder="Webhook token Cashramp"
               value={cashrampForm.CASHRAMP_WEBHOOK_SECRET}
               onChange={(e) => setCashrampForm({ ...cashrampForm, CASHRAMP_WEBHOOK_SECRET: e.target.value })}
             />
           </Field>
-          <Field label="Environnement">
-            <select
-              value={cashrampForm.CASHRAMP_ENVIRONMENT}
-              onChange={(e) => setCashrampForm({ ...cashrampForm, CASHRAMP_ENVIRONMENT: e.target.value })}
-            >
-              <option value="sandbox">sandbox</option>
-              <option value="production">production</option>
-            </select>
-          </Field>
+          <p className="field-hint">Environnement : production</p>
           <Button onClick={() => save('cashramp')}>Enregistrer Cashramp</Button>
         </Card>
 
@@ -263,8 +256,7 @@ export function ProvidersPage() {
             />
           </Field>
           <Field label="App token (clé API)">
-            <input
-              type="password"
+            <PasswordInput
               autoComplete="off"
               placeholder="Token Sumsub"
               value={sumsubForm.SUMSUB_APP_TOKEN}
@@ -272,8 +264,7 @@ export function ProvidersPage() {
             />
           </Field>
           <Field label="Clé secrète (Secret key)">
-            <input
-              type="password"
+            <PasswordInput
               autoComplete="off"
               placeholder="Secret Sumsub"
               value={sumsubForm.SUMSUB_SECRET_KEY}
@@ -281,8 +272,7 @@ export function ProvidersPage() {
             />
           </Field>
           <Field label="Secret webhook">
-            <input
-              type="password"
+            <PasswordInput
               autoComplete="off"
               placeholder="Secret webhook Sumsub"
               value={sumsubForm.SUMSUB_WEBHOOK_SECRET}

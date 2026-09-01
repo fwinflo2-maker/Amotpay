@@ -140,3 +140,5 @@ export function Field({
     </label>
   );
 }
+
+export { PasswordInput } from './PasswordInput';

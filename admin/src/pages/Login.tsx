@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { login } from '../api';
 import { AmotpayLogo } from '../components/AmotpayLogo';
 import { Button } from '../components/ui';
+import { PasswordInput } from '../components/PasswordInput';
 
 export function LoginPage() {
   const [username, setUsername] = useState('');
@@ -103,7 +104,9 @@ export function LoginPage() {
       <section className="login-panel">
         <div className="login-card">
           <h2>Connexion</h2>
-          <p className="login-lead">Identifiant et mot de passe administrateur.</p>
+          <p className="login-lead">
+            Identifiant et mot de passe administrateur (mot de passe ≥ 8 caractères).
+          </p>
 
           <form onSubmit={submit}>
             <label className="field" htmlFor="admin-username">
@@ -124,10 +127,9 @@ export function LoginPage() {
 
             <label className="field" htmlFor="admin-password">
               <span className="field-label">Mot de passe</span>
-              <input
+              <PasswordInput
                 id="admin-password"
                 name="password"
-                type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 onInput={(e) => setPassword(e.currentTarget.value)}
