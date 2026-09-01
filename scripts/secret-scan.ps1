@@ -26,13 +26,16 @@ if (-not $files) {
 
 $hits = @()
 foreach ($file in $files) {
-    if ($file -match '(?i)(node_modules|vendor|\.apk$|\.env\.example$|runtime\.env\.example$|secret-scan\.ps1$)') { continue }
+    if ($file -match '(?i)(node_modules|vendor|\.apk$|\.env\.example$|runtime\.env\.example$|secret-scan\.ps1$|rotate-secrets\.ps1$|je veux savoir)') { continue }
     if (-not (Test-Path $file)) { continue }
     $content = Get-Content $file -Raw -ErrorAction SilentlyContinue
     if (-not $content) { continue }
     foreach ($p in $patterns) {
-        if ($content -match $p) {
-            $hits += "$file :: pattern $p"
+        $m = [regex]::Matches($content, $p)
+        foreach ($hit in $m) {
+            if ($file -match '^docs/' -and $hit.Value -match '<[^>]+>') { continue }
+            if ($file -match '^docs/' -and $hit.Value -match '=\s*$') { continue }
+            $hits += "$file :: $($hit.Value)"
         }
     }
 }

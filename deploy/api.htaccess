@@ -2,7 +2,10 @@ Options -Indexes
 ServerSignature Off
 
 <IfModule mod_authz_core.c>
-    <FilesMatch "(?i)(^\.|\.env(?:\..*)?$|\.(?:env|sql|zip|7z|rar|tar|gz|tgz|bz2|xz|apk|aab|jks|keystore|p12|pfx|pem|key)$|(?:^|[-_.])migrat(?:e|ion)[^/]*\.php$)">
+    <Files "amotpay.env">
+        Require all denied
+    </Files>
+    <FilesMatch "(?i)(^\.|amotpay\.env$|\.env(?:\..*)?$|\.(?:env|sql|zip|7z|rar|tar|gz|tgz|bz2|xz|apk|aab|jks|keystore|p12|pfx|pem|key)$|(?:^|[-_.])migrat(?:e|ion)[^/]*\.php$)">
         Require all denied
     </FilesMatch>
 </IfModule>
@@ -20,6 +23,8 @@ ServerSignature Off
 
 RewriteEngine On
 RewriteRule "(^|/)\." - [F,L,NC]
+RewriteRule ^amotpay\.env$ - [F,L,NC]
+RewriteRule ^\.env - [F,L,NC]
 RewriteRule "^(?:src|vendor|migrations?)(?:/|$)" - [F,L,NC]
 RewriteRule "(^|/)[^/]*migrat(?:e|ion)[^/]*\.php$" - [F,L,NC]
 RewriteRule "(^|/)[^/]*\.(?:env|sql|zip|7z|rar|tar|gz|tgz|bz2|xz|apk|aab|jks|keystore|p12|pfx|pem|key)$" - [F,L,NC]
