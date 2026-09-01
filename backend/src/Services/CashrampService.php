@@ -20,8 +20,8 @@ final class CashrampService
         $settings ??= new SettingsService();
         $this->apiUrl = $settings->get(
             'CASHRAMP_API_URL',
-            'https://staging.api.useaccrue.com/cashramp/api/graphql'
-        ) ?? 'https://staging.api.useaccrue.com/cashramp/api/graphql';
+            'https://api.useaccrue.com/cashramp/api/graphql'
+        ) ?? 'https://api.useaccrue.com/cashramp/api/graphql';
         $this->secretKey = $settings->get('CASHRAMP_SECRET_KEY') ?? '';
     }
 

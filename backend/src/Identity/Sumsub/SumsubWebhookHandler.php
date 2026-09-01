@@ -21,6 +21,9 @@ final class SumsubWebhookHandler
     public function handle(string $rawBody, string $digestHeader): bool
     {
         $secret = $this->settings->get('SUMSUB_WEBHOOK_SECRET') ?? '';
+        if ($secret === '') {
+            throw new \RuntimeException('Sumsub webhook is not configured');
+        }
         if (!SumsubAdapter::verifyWebhookSignature($rawBody, $digestHeader, $secret)) {
             throw new \InvalidArgumentException('Invalid Sumsub webhook signature');
         }

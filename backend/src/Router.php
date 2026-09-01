@@ -547,6 +547,8 @@ final class Router
             Response::json(['success' => true, 'duplicate' => !$processed]);
         } catch (\InvalidArgumentException $e) {
             Response::error($e->getMessage(), 401, 'INVALID_WEBHOOK_SIGNATURE');
+        } catch (\RuntimeException $e) {
+            Response::error($e->getMessage(), 503, 'PROVIDER_NOT_CONFIGURED');
         }
     }
 

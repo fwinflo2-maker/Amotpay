@@ -121,10 +121,10 @@ final class SettingsService
     {
         return [
             'webhook_url' => $this->getWebhookUrls()['cashramp'],
-            'environment' => $this->get('CASHRAMP_ENVIRONMENT', 'sandbox'),
+            'environment' => $this->get('CASHRAMP_ENVIRONMENT', 'production'),
             'api_url' => $this->get(
                 'CASHRAMP_API_URL',
-                'https://staging.api.useaccrue.com/cashramp/api/graphql'
+                'https://api.useaccrue.com/cashramp/api/graphql'
             ),
         ];
     }
