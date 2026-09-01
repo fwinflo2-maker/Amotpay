@@ -124,10 +124,11 @@ $token = Get-AdminToken
 if ($ConfigureProviders) {
     Write-Step "Configure Cashramp (if env vars set)"
     $cashramp = @{}
-    foreach ($key in @("CASHRAMP_API_URL","CASHRAMP_PUBLIC_KEY","CASHRAMP_SECRET_KEY","CASHRAMP_WEBHOOK_SECRET","CASHRAMP_ENVIRONMENT")) {
+    foreach ($key in @("CASHRAMP_API_URL","CASHRAMP_PUBLIC_KEY","CASHRAMP_SECRET_KEY","CASHRAMP_WEBHOOK_SECRET")) {
         $val = [Environment]::GetEnvironmentVariable($key)
         if (-not [string]::IsNullOrWhiteSpace($val)) { $cashramp[$key] = $val }
     }
+    $cashramp["CASHRAMP_ENVIRONMENT"] = "production"
     if ($cashramp.Count -gt 0) {
         Set-ProviderCredentials -Token $token -Provider "cashramp" -Values $cashramp
         Write-Host "Cashramp credentials saved (encrypted server-side)"
