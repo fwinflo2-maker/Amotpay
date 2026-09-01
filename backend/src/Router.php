@@ -98,6 +98,7 @@ final class Router
                 $method === 'GET' && $path === '/api/capabilities' => $this->capabilities($auth, $request),
 
                 $method === 'POST' && $path === '/api/v2/quote' => $this->universalQuote($auth, $request),
+                $method === 'POST' && $path === '/api/v2/transfers' => $this->universalTransfer($auth, $request),
                 $method === 'POST' && $path === '/api/onboarding/cashramp' => $this->onboardingCashramp($auth, $request),
 
                 $method === 'GET' && $path === '/api/v2/transfers' => $this->listV2Transfers($auth, $request),
