@@ -64,6 +64,18 @@ final class MigrationRunnerService
         return $ran;
     }
 
+    /** @param list<string> $ran */
+    public function afterMigrations(array $ran): void
+    {
+        if ($ran === [] || !in_array('008_admin_credentials.sql', $ran, true)) {
+            if (!$this->tableExists(Database::connection(), 'admin_credentials')) {
+                return;
+            }
+        }
+
+        (new \AmotPay\Admin\AdminBootstrapService())->bootstrapIfNeeded();
+    }
+
     private function bootstrapLegacyMigrations(\PDO $pdo): void
     {
         $hasUsers = $this->tableExists($pdo, 'users');

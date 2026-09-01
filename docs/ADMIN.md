@@ -54,23 +54,31 @@ SPA base path: `/admin/` — e.g. `/admin/login`, `/admin/providers`, `/admin/ky
 
 ## Authentication
 
-- Login page: **identifiant** + **mot de passe** (+ code **2FA** si activé).
-- Bootstrap initial (Hostinger `amotpay.env`, jamais dans GitHub) :
-  ```env
-  BOOTSTRAP_ADMIN_USERNAME=admin
-  BOOTSTRAP_ADMIN_PASSWORD=<temporary-secret-min-8-chars>
-  ```
-  Au premier login après migration 008, le compte est créé en base avec `PASSWORD_CHANGE_REQUIRED`.
-- Fallback legacy (avant bootstrap DB) :
-  ```env
-  ADMIN_USERNAME=admin
-  ADMIN_PASSWORD=<min-8-chars>
-  ```
-- **Account & Security** (`/admin/settings`) :
-  - Changer identifiant / mot de passe (audit loggé, jamais en clair)
-  - Sessions actives + révocation
-  - 2FA TOTP (setup / enable / disable)
-- Après connexion avec mot de passe temporaire → redirection forcée vers **Paramètres**.
+**Source of truth: database table `admin_credentials`** (migration 008). Environment variables are only used once to bootstrap the first row — never for routine login after that.
+
+### Initial setup (Hostinger)
+
+1. In `amotpay.env` (never commit), set **only for bootstrap**:
+   ```env
+   BOOTSTRAP_ADMIN_USERNAME=admin
+   BOOTSTRAP_ADMIN_PASSWORD=<temporary-secret-min-8-chars>
+   ```
+2. Run on the API server (SSH or Hostinger cron):
+   ```bash
+   php backend/bin/create-admin.php
+   ```
+   Or apply migrations from Admin → Migrations → **Apply pending** (requires legacy env login only if 008 not applied yet).
+3. Login at `/admin/login` with:
+   - **Username:** `admin` (or `BOOTSTRAP_ADMIN_USERNAME`)
+   - **Password:** the `BOOTSTRAP_ADMIN_PASSWORD` value you set on Hostinger
+4. Change password in **Account & Security** (`/admin/settings`) — stored as bcrypt hash in `admin_credentials`.
+
+After bootstrap, **remove or clear** `BOOTSTRAP_ADMIN_PASSWORD` from `amotpay.env`. Do not rely on `ADMIN_PASSWORD` / `ADMIN_PIN` for production admin login once the DB row exists.
+
+### Ongoing management
+
+- **Account & Security** (`/admin/settings`): username, password, sessions, 2FA TOTP
+- All changes persisted in `admin_credentials` (encrypted hash only)
 
 ## Migrations
 

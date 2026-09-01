@@ -13,7 +13,6 @@ final class AdminBootstrapService
 {
     private const ROW_ID = 1;
 
-    /** Create initial admin from BOOTSTRAP_* env when no row exists. Returns true if created. */
     public function bootstrapIfNeeded(): bool
     {
         if (!$this->tableExists() || $this->hasStoredAdmin()) {
@@ -22,11 +21,30 @@ final class AdminBootstrapService
 
         $username = trim((string) (Env::get('BOOTSTRAP_ADMIN_USERNAME', '') ?? ''));
         if ($username === '') {
-            $username = trim((string) (Env::get('ADMIN_USERNAME', 'admin') ?? 'admin'));
+            $username = 'admin';
         }
         $password = (string) (Env::get('BOOTSTRAP_ADMIN_PASSWORD', '') ?? '');
         if ($password === '' || strlen($password) < 8) {
             return false;
+        }
+
+        $this->createAdmin($username, $password, 'PASSWORD_CHANGE_REQUIRED');
+
+        return true;
+    }
+
+    public function createAdmin(string $username, string $password, string $status = 'ACTIVE'): void
+    {
+        if (!$this->tableExists()) {
+            throw new \RuntimeException('admin_credentials table does not exist — run migration 008 first');
+        }
+        if ($this->hasStoredAdmin()) {
+            throw new \RuntimeException('Admin account already exists in database');
+        }
+
+        $username = trim($username);
+        if ($username === '' || strlen($password) < 8) {
+            throw new \RuntimeException('Invalid bootstrap admin username or password');
         }
 
         $hash = password_hash($password, PASSWORD_DEFAULT);
@@ -34,13 +52,21 @@ final class AdminBootstrapService
         $pdo->prepare(
             'INSERT INTO admin_credentials (id, username, password_hash, status)
              VALUES (?, ?, ?, ?)'
-        )->execute([self::ROW_ID, $username, $hash, 'PASSWORD_CHANGE_REQUIRED']);
+        )->execute([self::ROW_ID, $username, $hash, $status]);
 
         \AmotPay\Services\AuditService::log('admin.bootstrap', null, 'admin_account', (string) self::ROW_ID, null, [
             'username' => $username,
         ]);
+    }
 
-        return true;
+    public function credentialsTableExists(): bool
+    {
+        return $this->tableExists();
+    }
+
+    public function hasAdmin(): bool
+    {
+        return $this->hasStoredAdmin();
     }
 
     private function tableExists(): bool

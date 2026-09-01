@@ -722,11 +722,14 @@ final class Router
     private function adminApplyMigrations(AdminMiddleware $mw, Request $request): void
     {
         $mw->handle($request);
-        $ran = (new MigrationRunnerService())->applyPending();
+        $runner = new MigrationRunnerService();
+        $ran = $runner->applyPending();
+        $runner->afterMigrations($ran);
         Response::json([
             'success' => true,
             'data' => [
                 'applied' => $ran,
+                'bootstrapped' => (new \AmotPay\Admin\AdminBootstrapService())->bootstrapIfNeeded(),
                 'status' => (new MigrationStatusService())->status(),
             ],
         ]);

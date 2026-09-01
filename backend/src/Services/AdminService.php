@@ -16,7 +16,11 @@ final class AdminService
     public function login(string $username, string $password, ?string $totpCode, ?string $ip, ?string $userAgent): array
     {
         if (!$this->accounts->isConfigured()) {
-            throw new ApiException('Admin authentication is not configured', 503, 'ADMIN_NOT_CONFIGURED');
+            throw new ApiException(
+                'Admin authentication is not configured. Run migrations and bootstrap admin in database (BOOTSTRAP_ADMIN_PASSWORD on server, then php backend/bin/create-admin.php).',
+                503,
+                'ADMIN_NOT_CONFIGURED'
+            );
         }
 
         $this->accounts->assertCanAuthenticate($username);
