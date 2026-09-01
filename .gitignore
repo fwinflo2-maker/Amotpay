@@ -41,6 +41,10 @@ amotpay.env
 **/*_token.*
 **/*.token
 deploy/upload-creds.json
+deploy/deploy.env
+
+# Local requirements / notes with credentials (never commit)
+je veux savoir si le projet repond.txt
 
 # Signing keys and certificates
 *.jks

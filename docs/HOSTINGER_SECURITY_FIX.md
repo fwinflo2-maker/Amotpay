@@ -14,9 +14,15 @@ In Hostinger File Manager or SSH:
 
 ## Step 2 — Deploy hardened `.htaccess`
 
-Copy rules from `deploy/root-security.htaccess` to the subdomain document root `.htaccess`.
+Copy rules from `deploy/api.htaccess` to the subdomain document root `.htaccess`.
 
-Merge with existing rules in `deploy/subdomain-root/.htaccess` when deploying backend.
+Automated package (requires `AMOTPAY_DEPLOY_*` env vars):
+
+```powershell
+.\scripts\deploy-api-security.ps1
+```
+
+Manual fallback: upload `deploy/api.htaccess` to `public_html/amotpay-api/.htaccess` via hPanel File Manager.
 
 ## Step 3 — Store secrets in Hostinger environment only
 
