@@ -1,6 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
-import { BrowserRouter, Routes, Route, Navigate, Link, useLocation } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { LoginPage } from './pages/Login';
 import { DashboardPage } from './pages/Dashboard';
 import { ProvidersPage } from './pages/Providers';
@@ -10,36 +10,9 @@ import { TransfersPage } from './pages/Transfers';
 import { LedgerPage } from './pages/Ledger';
 import { ReconciliationPage } from './pages/Reconciliation';
 import { AuditPage } from './pages/Audit';
-import { getToken, setToken } from './api';
+import { Shell } from './components/Shell';
+import { getToken } from './api';
 import './styles.css';
-
-function Shell({ children }: { children: React.ReactNode }) {
-  const loc = useLocation();
-  const nav = [
-    ['/', 'Dashboard'],
-    ['/providers', 'Providers'],
-    ['/kyc', 'KYC'],
-    ['/capabilities', 'Capabilities'],
-    ['/transfers', 'Transfers'],
-    ['/ledger', 'Ledger'],
-    ['/reconciliation', 'Reconciliation'],
-    ['/audit', 'Audit'],
-  ];
-  return (
-    <div className="layout">
-      <aside>
-        <div className="brand">AMOTPay Admin</div>
-        <nav>
-          {nav.map(([to, label]) => (
-            <Link key={to} to={to} className={loc.pathname === to ? 'active' : ''}>{label}</Link>
-          ))}
-        </nav>
-        <button className="ghost" onClick={() => { setToken(null); window.location.href = '/admin/login'; }}>Logout</button>
-      </aside>
-      <main>{children}</main>
-    </div>
-  );
-}
 
 function Private({ children }: { children: React.ReactNode }) {
   if (!getToken()) return <Navigate to="/login" replace />;

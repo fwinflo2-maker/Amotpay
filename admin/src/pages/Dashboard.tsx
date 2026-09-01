@@ -1,5 +1,14 @@
 import { useEffect, useState } from 'react';
 import { api } from '../api';
+import { Badge, Card, LoadingState, PageHeader, StatCard } from '../components/ui';
+
+function providerTone(status: string): 'success' | 'warning' | 'error' | 'neutral' {
+  const s = status.toLowerCase();
+  if (s === 'connected' || s === 'configured') return 'success';
+  if (s === 'unavailable' || s === 'not_configured') return 'warning';
+  if (s === 'error') return 'error';
+  return 'neutral';
+}
 
 export function DashboardPage() {
   const [data, setData] = useState<Record<string, unknown> | null>(null);
@@ -8,18 +17,36 @@ export function DashboardPage() {
     api<Record<string, unknown>>('/admin/dashboard').then(setData).catch(console.error);
   }, []);
 
-  if (!data) return <p className="muted">Loading…</p>;
+  if (!data) return <LoadingState label="Loading dashboard…" />;
+
+  const providers = (data.providers as Record<string, string>) ?? {};
 
   return (
     <>
-      <h1>Dashboard</h1>
-      <div className="row">
-        <div className="card" style={{ minWidth: 160 }}><div className="muted">Transfers today</div><div style={{ fontSize: '1.5rem' }}>{String(data.transactions_today)}</div></div>
-        <div className="card" style={{ minWidth: 160 }}><div className="muted">KYC pending</div><div style={{ fontSize: '1.5rem' }}>{String(data.kyc_pending)}</div></div>
-        <div className="card" style={{ minWidth: 160 }}><div className="muted">Cashramp</div><div>{String((data.providers as Record<string, string>)?.cashramp)}</div></div>
-        <div className="card" style={{ minWidth: 160 }}><div className="muted">Sumsub</div><div>{String((data.providers as Record<string, string>)?.sumsub)}</div></div>
+      <PageHeader
+        title="Dashboard"
+        subtitle="Real-time overview of platform operations and provider health."
+      />
+
+      <div className="stat-grid">
+        <StatCard label="Transfers today" value={String(data.transactions_today ?? '—')} />
+        <StatCard label="KYC pending" value={String(data.kyc_pending ?? '—')} tone="warning" />
+        <StatCard
+          label="Cashramp"
+          value={<Badge tone={providerTone(providers.cashramp ?? '')}>{providers.cashramp ?? 'unknown'}</Badge>}
+        />
+        <StatCard
+          label="Sumsub"
+          value={<Badge tone={providerTone(providers.sumsub ?? '')}>{providers.sumsub ?? 'unknown'}</Badge>}
+        />
       </div>
-      <pre className="card" style={{ overflow: 'auto', fontSize: '0.75rem' }}>{JSON.stringify(data, null, 2)}</pre>
+
+      <Card>
+        <h2 style={{ margin: '0 0 0.75rem', fontSize: '1rem' }}>System snapshot</h2>
+        <pre className="json-preview" style={{ borderRadius: 'var(--radius-md)', maxHeight: 280 }}>
+          {JSON.stringify(data, null, 2)}
+        </pre>
+      </Card>
     </>
   );
 }
