@@ -12,6 +12,7 @@ const NAV = [
   { to: '/reconciliation', label: 'Reconciliation', icon: 'balance' },
   { to: '/audit', label: 'Audit', icon: 'list' },
   { to: '/settings', label: 'Paramètres', icon: 'settings' },
+  { to: '/migrations', label: 'Migrations', icon: 'database' },
 ] as const;
 
 function NavIcon({ name }: { name: string }) {
@@ -73,6 +74,13 @@ function NavIcon({ name }: { name: string }) {
         <svg {...props}>
           <circle cx="12" cy="12" r="3" />
           <path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4" strokeLinecap="round" />
+        </svg>
+      );
+    case 'database':
+      return (
+        <svg {...props}>
+          <ellipse cx="12" cy="5" rx="8" ry="3" />
+          <path d="M4 5v6c0 1.7 3.6 3 8 3s8-1.3 8-3V5M4 11v6c0 1.7 3.6 3 8 3s8-1.3 8-3v-6" />
         </svg>
       );
     default:

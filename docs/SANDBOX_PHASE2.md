@@ -1,11 +1,21 @@
 # AMOTPay — Phase 2 Sandbox E2E
 
-**API:** https://amotpay-api.nexustechnologies.cloud (v2.1.0)  
+**API:** https://amotpay-api.nexustechnologies.cloud (**v2.2.0**)  
 **Admin:** https://admin-amotpay.nexustechnologies.cloud
 
 ## Prerequisite
 
-Phase 1 complete: security PASS, migrations 005–007 APPLIED, backend deployed.
+Phase 1 complete: security PASS, migrations 005–008 APPLIED, backend deployed.
+
+### Apply migration 008 (admin credentials)
+
+Via Admin → **Migrations** → **Apply pending**, or:
+
+```powershell
+$env:AMOTPAY_ADMIN_USERNAME = "admin"
+$env:AMOTPAY_ADMIN_PASSWORD = "<from-hostinger>"
+.\scripts\apply-admin-migrations.ps1
+```
 
 ## Configure credentials (never in Git)
 
@@ -36,7 +46,7 @@ Never use `*` for CORS.
 ### Option B — Admin Web (`admin/`)
 
 1. Open https://admin-amotpay.nexustechnologies.cloud/admin/login
-2. Login with `ADMIN_PIN` from Hostinger
+2. Login with `ADMIN_USERNAME` + `ADMIN_PASSWORD` from Hostinger (`ADMIN_PIN` legacy fallback)
 3. **Providers** → save Cashramp + Sumsub credentials (masked after save)
 
 ### Option C — Local script (env vars only)
