@@ -51,11 +51,21 @@ function Invoke-AmotApi {
 }
 
 function Get-AdminToken {
-    $pin = $env:AMOTPAY_ADMIN_PIN
-    if ([string]::IsNullOrWhiteSpace($pin)) {
-        throw "AMOTPAY_ADMIN_PIN is not set. Load deploy/sandbox.env.local first."
+    $username = $env:AMOTPAY_ADMIN_USERNAME
+    if ([string]::IsNullOrWhiteSpace($username)) { $username = $env:ADMIN_USERNAME }
+    $password = $env:AMOTPAY_ADMIN_PASSWORD
+    if ([string]::IsNullOrWhiteSpace($password)) {
+        $password = $env:ADMIN_PASSWORD
+        if ([string]::IsNullOrWhiteSpace($password)) { $password = $env:ADMIN_PIN }
     }
-    $json = Invoke-AmotApi -Method POST -Path "/admin/login" -Body @{ pin = $pin }
+
+    if (-not [string]::IsNullOrWhiteSpace($username) -and -not [string]::IsNullOrWhiteSpace($password)) {
+        $json = Invoke-AmotApi -Method POST -Path "/admin/login" -Body @{ username = $username; password = $password }
+    } elseif (-not [string]::IsNullOrWhiteSpace($password)) {
+        $json = Invoke-AmotApi -Method POST -Path "/admin/login" -Body @{ pin = $password }
+    } else {
+        throw "Set AMOTPAY_ADMIN_USERNAME + AMOTPAY_ADMIN_PASSWORD (or ADMIN_PIN). Load deploy/sandbox.env.local first."
+    }
     if (-not $json.success) { throw "Admin login failed" }
     return $json.data.token
 }

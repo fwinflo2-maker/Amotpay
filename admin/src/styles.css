@@ -849,6 +849,55 @@ code {
   border-bottom: none;
 }
 
+.webhook-box {
+  margin-bottom: 1.15rem;
+  padding: 0.85rem 1rem;
+  border-radius: var(--radius-md);
+  border: 1px solid rgba(201, 162, 39, 0.35);
+  background: rgba(201, 162, 39, 0.08);
+}
+
+.webhook-box-label {
+  display: block;
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--lp-signal);
+  margin-bottom: 0.45rem;
+  font-weight: 600;
+}
+
+.webhook-box-hint {
+  margin: 0.5rem 0 0;
+  font-size: 0.8rem;
+  color: var(--lp-muted);
+  line-height: 1.45;
+}
+
+.webhook-url-row {
+  display: flex;
+  gap: 0.5rem;
+  align-items: stretch;
+}
+
+.webhook-url-row code {
+  flex: 1;
+  display: block;
+  padding: 0.55rem 0.65rem;
+  font-family: var(--lp-mono);
+  font-size: 0.76rem;
+  word-break: break-all;
+  border-radius: var(--radius-sm);
+  background: rgba(0, 0, 0, 0.35);
+  border: 1px solid var(--border-soft);
+  color: #d8e2f0;
+}
+
+.webhook-url-row .btn {
+  flex-shrink: 0;
+  align-self: center;
+}
+
 .json-preview {
   margin: 0;
   padding: 1.15rem;

@@ -1,6 +1,5 @@
-<?php
-
-declare(strict_types=1);
+-- Admin credentials (username + password hash)
+SET NAMES utf8mb4;
 
 CREATE TABLE IF NOT EXISTS admin_credentials (
     id TINYINT UNSIGNED NOT NULL PRIMARY KEY,

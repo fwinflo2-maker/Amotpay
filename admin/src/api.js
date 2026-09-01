@@ -24,11 +24,11 @@ export async function api(path, options = {}) {
     }
     return json.data;
 }
-export async function login(pin) {
+export async function login(username, password) {
     const res = await fetch(`${API}/api/admin/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ pin }),
+        body: JSON.stringify({ username, password }),
     });
     const json = await res.json();
     if (!res.ok || !json.success)
