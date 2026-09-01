@@ -36,21 +36,21 @@ export function LoginPage() {
         <div className="lp-nav-inner">
           <div className="lp-brand">
             <NexusLogo size={30} />
-            <span className="lp-brand-text">NEXUS</span>
+            <span className="lp-brand-text">AMOTPAY</span>
           </div>
-          <span className="lp-nav-meta">Operations</span>
+          <span className="lp-nav-meta">Admin</span>
         </div>
       </header>
 
       <section className="login-hero">
-        <p className="lp-kicker">AMOTPay · Admin console</p>
+        <p className="lp-kicker">Console opérations</p>
         <h1>
-          Orchestration
+          Plateforme
           <br />
-          <span className="lp-accent">financière</span>
+          <span className="lp-accent">monétaire globale</span>
         </h1>
         <p className="lp-lead">
-          Transferts, identité, providers et réconciliation — une seule console pour piloter la plateforme.
+          Transferts cross-border, identité, comptes et réconciliation — pilotage de la plateforme AMOTPay.
         </p>
         <div className="lp-tags">
           <span>Cashramp</span>

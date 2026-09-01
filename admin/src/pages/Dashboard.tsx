@@ -25,7 +25,7 @@ export function DashboardPage() {
     <>
       <PageHeader
         title="Dashboard"
-        subtitle="Real-time overview of platform operations and provider health."
+        subtitle="Vue d'ensemble des transferts, de l'identité et des providers AMOTPay."
       />
 
       <div className="stat-grid">

@@ -92,7 +92,7 @@ export function Shell({ children }: { children: React.ReactNode }) {
           <NexusLogo size={34} />
           <div>
             <span className="sidebar-title">AMOTPay</span>
-            <span className="sidebar-tag">Nexus Technologies</span>
+            <span className="sidebar-tag">Admin console</span>
           </div>
         </div>
 
