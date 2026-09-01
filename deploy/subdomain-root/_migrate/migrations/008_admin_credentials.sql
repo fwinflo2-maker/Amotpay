@@ -1,0 +1,10 @@
+<?php
+
+declare(strict_types=1);
+
+CREATE TABLE IF NOT EXISTS admin_credentials (
+    id TINYINT UNSIGNED NOT NULL PRIMARY KEY,
+    username VARCHAR(100) NOT NULL,
+    password_hash VARCHAR(255) NOT NULL,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;

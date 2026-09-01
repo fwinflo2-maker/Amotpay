@@ -11,10 +11,12 @@ uploads/
 dist/
 build/
 
-# Database dumps
+# Database dumps (keep tracked migrations)
 *.sql
-!backend/migrations/*.sql
-!deploy/subdomain-root/_migrate/migrations/*.sql
+!backend/migrations/
+!backend/migrations/**
+!deploy/subdomain-root/_migrate/migrations/
+!deploy/subdomain-root/_migrate/migrations/**
 
 # Environment and local secret material
 .env
