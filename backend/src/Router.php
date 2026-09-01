@@ -28,6 +28,7 @@ use AmotPay\Core\Routing\UniversalTransferEngine;
 use AmotPay\Financial\Providers\Cashramp\CashrampAdapter;
 use AmotPay\Identity\IdentityVerificationService;
 use AmotPay\Identity\Sumsub\SumsubAdapter;
+use AmotPay\Identity\Sumsub\SumsubWebhookHandler;
 use AmotPay\Financial\Cashramp\CashrampCustomerService;
 use AmotPay\Reconciliation\ReconciliationService;
 use AmotPay\Core\FeatureFlags;
