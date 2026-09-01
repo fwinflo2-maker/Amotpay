@@ -77,14 +77,51 @@
     "logout": "Déconnexion"
   },
   "auth": {
+    "welcomeBack": "Bon retour",
     "signIn": "Connexion",
     "signUp": "Créer un compte",
+    "createAccount": "Créez votre compte AMOTPay",
+    "createSubtitle": "Rejoignez une plateforme financière mondiale premium.",
     "phone": "Téléphone",
     "password": "Mot de passe",
     "firstName": "Prénom",
     "lastName": "Nom",
+    "emailOptional": "E-mail (optionnel)",
+    "country": "Pays",
+    "passwordHint": "Au moins 12 caractères",
     "continue": "Continuer",
-    "tagline": "Votre argent. Partout."
+    "tagline": "Votre argent. Partout.",
+    "forgotPassword": "Mot de passe oublié ?",
+    "forgotTitle": "Réinitialiser le mot de passe",
+    "forgotBody": "La récupération est gérée de manière sécurisée par notre équipe support.",
+    "forgotNote": "Contactez le support via les paramètres. Ne partagez jamais votre mot de passe.",
+    "backToSignIn": "Retour à la connexion",
+    "noAccount": "Pas encore de compte ?",
+    "haveAccount": "Déjà un compte ?",
+    "invalidCredentials": "Téléphone ou mot de passe invalide"
+  },
+  "onboarding": {
+    "slide1Title": "Déplacez l'argent.\nSans complexité.",
+    "slide1Body": "Envoyez, recevez et détenez de la valeur dans une expérience premium.",
+    "slide2Title": "Envoyez de l'argent dans le monde",
+    "slide2Body": "Atteignez vos proches sur les corridors pris en charge.",
+    "slide3Title": "Devises et actifs numériques",
+    "slide3Body": "Comptes et crypto débloqués selon votre éligibilité.",
+    "slide4Title": "Votre argent.\nPartout.",
+    "slide4Body": "AMOTPay — une plateforme financière mondiale dans votre poche.",
+    "next": "Suivant",
+    "skip": "Passer",
+    "getStarted": "Commencer"
+  },
+  "kycIntro": {
+    "title": "Vérifiez votre identité",
+    "subtitle": "Débloquez transferts, comptes et fonctionnalités financières.",
+    "need1": "Une pièce d'identité valide",
+    "need2": "Un appareil avec caméra",
+    "need3": "Quelques minutes",
+    "secure": "Vos informations sont vérifiées en sécurité.",
+    "start": "Commencer la vérification",
+    "later": "Plus tard"
   },
   "states": {
     "loading": "Chargement…",

@@ -29,7 +29,16 @@ npm install
 npm start
 ```
 
-## Phase 3B+ (next)
+## Phase 3B — Complete
+
+- Premium Login / Register / Forgot password screens
+- 4-slide onboarding (first launch)
+- KYC intro gate after first registration
+- Session flags in SecureStore
+- AMOTPay branded app icon + splash (`assets/`)
+- Country picker on register (API-driven)
+
+## Phase 3C (next)
 
 - Universal Send UI refactor (v2 quote)
 - Sumsub Mobile SDK (dev build)

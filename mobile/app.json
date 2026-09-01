@@ -1,18 +1,20 @@
 {
   "expo": {
-    "name": "AmotPay",
+    "name": "AMOTPay",
     "slug": "amotpay",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./android/app/src/main/res/mipmap-xxxhdpi/ic_launcher.webp",
-    "userInterfaceStyle": "light",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "automatic",
     "splash": {
-      "backgroundColor": "#1B4332"
+      "image": "./assets/splash-icon.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#0E1116"
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./android/app/src/main/res/mipmap-xxxhdpi/ic_launcher.webp",
-        "backgroundColor": "#1B4332"
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#0E1116"
       },
       "package": "com.amotpay.app"
     },

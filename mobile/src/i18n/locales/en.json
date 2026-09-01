@@ -77,14 +77,51 @@
     "logout": "Sign out"
   },
   "auth": {
+    "welcomeBack": "Welcome back",
     "signIn": "Sign in",
     "signUp": "Create account",
+    "createAccount": "Create your AMOTPay account",
+    "createSubtitle": "Join a global premium money platform.",
     "phone": "Phone",
     "password": "Password",
     "firstName": "First name",
     "lastName": "Last name",
+    "emailOptional": "Email (optional)",
+    "country": "Country",
+    "passwordHint": "At least 12 characters",
     "continue": "Continue",
-    "tagline": "Your money. Everywhere."
+    "tagline": "Your money. Everywhere.",
+    "forgotPassword": "Forgot password?",
+    "forgotTitle": "Reset your password",
+    "forgotBody": "Password recovery is handled securely by our support team while self-service reset is being finalized.",
+    "forgotNote": "Contact support from the app settings or your registered phone number. Never share your password in chat or email.",
+    "backToSignIn": "Back to sign in",
+    "noAccount": "Don't have an account?",
+    "haveAccount": "Already have an account?",
+    "invalidCredentials": "Invalid phone or password"
+  },
+  "onboarding": {
+    "slide1Title": "Move money.\nWithout the complexity.",
+    "slide1Body": "Send, receive, and hold value with a single premium experience.",
+    "slide2Title": "Send money globally",
+    "slide2Body": "Reach recipients across supported corridors with clarity at every step.",
+    "slide3Title": "Hold currencies and digital assets",
+    "slide3Body": "Accounts and digital assets unlock as your profile becomes eligible.",
+    "slide4Title": "Your money.\nEverywhere.",
+    "slide4Body": "AMOTPay — a global premium money platform in your pocket.",
+    "next": "Next",
+    "skip": "Skip",
+    "getStarted": "Get started"
+  },
+  "kycIntro": {
+    "title": "Verify your identity",
+    "subtitle": "Unlock transfers, accounts, and financial features.",
+    "need1": "A valid government-issued ID",
+    "need2": "A camera-enabled device",
+    "need3": "A few minutes of your time",
+    "secure": "Your information is verified securely. Status updates come from AMOTPay after review.",
+    "start": "Start verification",
+    "later": "Maybe later"
   },
   "states": {
     "loading": "Loading…",

@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { api, loadToken, saveToken, clearToken, User } from '../api';
+import { clearSessionFlags } from './session';
 
 type AuthContextType = {
   user: User | null;
@@ -52,6 +53,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       // Local logout must still complete if the session is already invalid or the network is down.
     } finally {
       await clearToken();
+      await clearSessionFlags();
       setUser(null);
     }
   };
