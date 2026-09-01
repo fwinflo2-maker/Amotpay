@@ -134,6 +134,8 @@ final class Router
 
                 $method === 'POST' && $path === '/api/admin/login' => $this->adminLogin($adminSvc, $request),
                 $method === 'POST' && $path === '/api/admin/logout' => $this->adminLogout($adminMw, $adminSvc, $request),
+                $method === 'GET' && $path === '/api/admin/account' => $this->adminGetAccount($adminMw, $adminSvc, $request),
+                $method === 'PUT' && $path === '/api/admin/account/credentials' => $this->adminUpdateCredentials($adminMw, $adminSvc, $request),
                 $method === 'GET' && $path === '/api/admin/providers' => $this->adminGetProviders($adminMw, $settingsSvc, $request),
                 $method === 'PUT' && $path === '/api/admin/providers' => $this->adminSaveProviders($adminMw, $settingsSvc, $request),
                 $method === 'GET' && $path === '/api/admin/magma-setup' => $this->adminMagmaSetup($adminMw, $settingsSvc, $request),
@@ -332,8 +334,33 @@ final class Router
 
     private function adminLogin(AdminService $admin, Request $request): void
     {
-        $result = $admin->login($request->body['pin'] ?? '');
+        $body = $request->body;
+        $username = trim((string) ($body['username'] ?? ''));
+        $password = (string) ($body['password'] ?? $body['pin'] ?? '');
+        if ($username === '' && isset($body['pin'])) {
+            $username = trim((string) (\AmotPay\Config\Env::get('ADMIN_USERNAME', 'admin') ?? 'admin'));
+        }
+        $result = $admin->login($username, $password);
         AuditService::log('admin.login', null, 'admin_session', null, $request->clientIp());
+        Response::json(['success' => true, 'data' => $result]);
+    }
+
+    private function adminGetAccount(AdminMiddleware $mw, AdminService $admin, Request $request): void
+    {
+        $mw->handle($request);
+        Response::json(['success' => true, 'data' => $admin->getAccountInfo()]);
+    }
+
+    private function adminUpdateCredentials(AdminMiddleware $mw, AdminService $admin, Request $request): void
+    {
+        $mw->handle($request);
+        $body = $request->body;
+        $result = $admin->updateCredentials(
+            (string) ($body['current_password'] ?? ''),
+            (string) ($body['username'] ?? ''),
+            (string) ($body['password'] ?? ''),
+            $request->clientIp()
+        );
         Response::json(['success' => true, 'data' => $result]);
     }
 
@@ -556,11 +583,11 @@ final class Router
     private function adminRotateProvider(AdminMiddleware $mw, Request $request, string $provider): void
     {
         $mw->handle($request);
-        $confirmPin = $request->body['confirm_pin'] ?? $request->body['pin'] ?? null;
+        $confirmPassword = $request->body['confirm_password'] ?? $request->body['confirm_pin'] ?? $request->body['pin'] ?? null;
         $data = (new AdminProviderService())->rotateCredentials(
             $provider,
             $request->body,
-            is_string($confirmPin) ? $confirmPin : null,
+            is_string($confirmPassword) ? $confirmPassword : null,
             $request->clientIp()
         );
         Response::json(['success' => true, 'data' => $data]);

@@ -78,6 +78,18 @@ h3 {
   align-items: center;
 }
 
+.amotpay-logo-img {
+  display: block;
+  flex-shrink: 0;
+  object-fit: cover;
+}
+
+.lp-brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.65rem;
+}
+
 .amotpay-lockup-text {
   font-family: var(--lp-display);
   letter-spacing: 0.12em;
@@ -165,10 +177,14 @@ h3 {
 .sidebar-logo {
   display: flex;
   align-items: center;
-  gap: 0.75rem;
+  gap: 0.85rem;
   padding: 0.35rem 0.5rem 1rem;
   border-bottom: 1px solid var(--border-soft);
   margin-bottom: 0.75rem;
+}
+
+.sidebar-logo .amotpay-logo-img {
+  box-shadow: 0 0 0 1px rgba(201, 162, 39, 0.35);
 }
 
 .sidebar-title {
@@ -668,12 +684,6 @@ code {
   width: min(1120px, 100% - 2.5rem);
   margin: 0 auto;
   padding: 0.85rem 0;
-}
-
-.lp-brand {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.6rem;
 }
 
 .lp-brand-text {

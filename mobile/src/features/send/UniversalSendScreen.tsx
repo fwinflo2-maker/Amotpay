@@ -104,6 +104,7 @@ export function UniversalSendScreen() {
     if (!destCountry) return;
     setMethods([]);
     setPaymentMethod('');
+    setQuote(null);
     api.paymentMethods(destCountry, 'CASHRAMP')
       .then((m: PaymentMethod[]) => {
         setMethods(m);
@@ -111,6 +112,19 @@ export function UniversalSendScreen() {
       })
       .catch(() => setMethods([]));
   }, [destCountry]);
+
+  useEffect(() => {
+    setQuote(null);
+  }, [amount, paymentMethod]);
+
+  const formatArrival = (expiresAt?: string) => {
+    if (!expiresAt) return '—';
+    try {
+      return new Date(expiresAt).toLocaleString();
+    } catch {
+      return expiresAt;
+    }
+  };
 
   const selectPerson = (p: Person) => {
     setFirstName(p.firstName);
@@ -335,6 +349,7 @@ export function UniversalSendScreen() {
           <Row label={t('send.recipient')} value={`${firstName} ${lastName}`} theme={theme} />
           <Row label={t('send.destination')} value={destMeta?.name ?? destCountry} theme={theme} />
           <Row label={t('send.method')} value={methods.find((m) => m.provider_code === paymentMethod)?.name ?? paymentMethod} theme={theme} />
+          <Text style={[theme.type.caption, { marginTop: spacing.sm }]}>{t('send.reviewHint')}</Text>
         </SurfaceCard>
       )}
 
@@ -344,6 +359,7 @@ export function UniversalSendScreen() {
           <Row label={t('send.recipientGets')} value={`${quote.recipient_gets.amount} ${quote.recipient_gets.currency}`} theme={theme} />
           <Row label={t('send.fee')} value={`${quote.fee.total ?? '0'} ${quote.fee.currency}`} theme={theme} />
           <Row label={t('send.rate')} value={quote.exchange_rate} theme={theme} />
+          <Row label={t('send.arrival')} value={formatArrival(quote.expires_at)} theme={theme} />
         </SurfaceCard>
       )}
 

@@ -1,10 +1,23 @@
 type AmotpayLogoProps = {
   size?: number;
-  variant?: 'mark' | 'lockup';
+  variant?: 'mark' | 'lockup' | 'image';
 };
 
 /** AMOTPay flow mark — gold transfer path, distinct from Nexus hex logo */
 export function AmotpayLogo({ size = 32, variant = 'mark' }: AmotpayLogoProps) {
+  if (variant === 'image') {
+    return (
+      <img
+        src="/amotpay-icon.png"
+        alt=""
+        width={size}
+        height={size}
+        className="amotpay-logo-img"
+        style={{ width: size, height: size, borderRadius: size * 0.22 }}
+      />
+    );
+  }
+
   if (variant === 'lockup') {
     return (
       <div className="amotpay-lockup" style={{ gap: size * 0.28 }}>
@@ -18,7 +31,7 @@ export function AmotpayLogo({ size = 32, variant = 'mark' }: AmotpayLogoProps) {
 
   return (
     <svg width={size} height={size} viewBox="0 0 48 48" fill="none" aria-hidden>
-      <rect x="2" y="2" width="44" height="44" rx="13" fill="#141C19" stroke="rgba(201,162,39,0.28)" strokeWidth="1.25" />
+      <rect x="2" y="2" width="44" height="44" rx="13" fill="#1a2336" stroke="#C9A227" strokeWidth="1.5" />
       <path
         d="M14 24 H34"
         stroke="rgba(201,162,39,0.42)"

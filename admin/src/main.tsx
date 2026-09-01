@@ -10,6 +10,7 @@ import { TransfersPage } from './pages/Transfers';
 import { LedgerPage } from './pages/Ledger';
 import { ReconciliationPage } from './pages/Reconciliation';
 import { AuditPage } from './pages/Audit';
+import { SettingsPage } from './pages/Settings';
 import { Shell } from './components/Shell';
 import { getToken } from './api';
 import './styles.css';
@@ -32,6 +33,7 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
         <Route path="/ledger" element={<Private><LedgerPage /></Private>} />
         <Route path="/reconciliation" element={<Private><ReconciliationPage /></Private>} />
         <Route path="/audit" element={<Private><AuditPage /></Private>} />
+        <Route path="/settings" element={<Private><SettingsPage /></Private>} />
       </Routes>
     </BrowserRouter>
   </React.StrictMode>

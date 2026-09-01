@@ -52,8 +52,19 @@ ALLOWED_ORIGINS=https://admin-amotpay.nexustechnologies.cloud,https://admin.amot
 
 SPA base path: `/admin/` — e.g. `/admin/login`, `/admin/providers`, `/admin/kyc`.
 
+## Authentication
+
+- Login page: **identifiant** + **mot de passe** (remplace l’ancien PIN seul).
+- Bootstrap Hostinger (`amotpay.env`) :
+  ```env
+  ADMIN_USERNAME=admin
+  ADMIN_PASSWORD=<min-8-chars>
+  ```
+  `ADMIN_PIN` reste accepté comme mot de passe de secours si `ADMIN_PASSWORD` est vide.
+- Après connexion : **Paramètres** (`/admin/settings`) pour modifier identifiant et mot de passe (stockés en base, hash bcrypt).
+
 ## Security
 
-- Admin PIN / token never committed to Git.
+- Admin credentials never committed to Git.
 - Provider credentials masked server-side only.
 - Run `.\scripts\secret-scan.ps1` before every push.

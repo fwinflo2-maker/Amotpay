@@ -61,7 +61,10 @@
     "submitted": "Verification submitted",
     "submittedHint": "We're reviewing your information.",
     "unavailable": "Identity verification is not available right now.",
-    "retry": "Try again"
+    "retry": "Try again",
+    "sdkUnavailable": "Sumsub SDK is not available in this build.",
+    "sdkReady": "Identity verification uses Sumsub. Final status comes from AMOTPay after webhook.",
+    "sdkBuildRequired": "Use an EAS Android/iOS build to launch Sumsub verification (Expo Go not supported)."
   },
   "settings": {
     "title": "Settings",
@@ -158,6 +161,8 @@
     "method": "Method",
     "fee": "Fee",
     "rate": "Rate",
+    "arrival": "Quote valid until",
+    "reviewHint": "Tap Get quote to fetch live rates from AMOTPay.",
     "reference": "Reference",
     "status": "Status",
     "continue": "Continue",

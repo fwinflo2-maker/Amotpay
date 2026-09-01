@@ -16,7 +16,8 @@
         "AMOTPAY_PRODUCTION_BUILD": "true"
       },
       "android": {
-        "buildType": "apk"
+        "buildType": "apk",
+        "image": "latest"
       }
     }
   }

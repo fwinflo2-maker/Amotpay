@@ -11,6 +11,7 @@ const NAV = [
   { to: '/ledger', label: 'Ledger', icon: 'book' },
   { to: '/reconciliation', label: 'Reconciliation', icon: 'balance' },
   { to: '/audit', label: 'Audit', icon: 'list' },
+  { to: '/settings', label: 'Paramètres', icon: 'settings' },
 ] as const;
 
 function NavIcon({ name }: { name: string }) {
@@ -67,6 +68,13 @@ function NavIcon({ name }: { name: string }) {
           <path d="M5 7h14M7 12h10M9 17h6" strokeLinecap="round" />
         </svg>
       );
+    case 'settings':
+      return (
+        <svg {...props}>
+          <circle cx="12" cy="12" r="3" />
+          <path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4" strokeLinecap="round" />
+        </svg>
+      );
     default:
       return (
         <svg {...props}>
@@ -89,10 +97,10 @@ export function Shell({ children }: { children: React.ReactNode }) {
 
       <aside className="sidebar">
         <div className="sidebar-logo">
-          <AmotpayLogo size={34} />
+          <AmotpayLogo size={40} variant="image" />
           <div>
-            <span className="sidebar-title">AMOTPay</span>
-            <span className="sidebar-tag">Admin console</span>
+            <span className="sidebar-title">Admin</span>
+            <span className="sidebar-tag">AMOTPay</span>
           </div>
         </div>
 

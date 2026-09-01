@@ -9,6 +9,7 @@ import { LoadingState } from '../../components/LoadingState';
 import { PrimaryButton } from '../../components/PrimaryButton';
 import { SurfaceCard } from '../../components/SurfaceCard';
 import { useTheme } from '../../context/ThemeContext';
+import { isSumsubNativeAvailable, launchSumsubVerification } from '../../features/kyc/sumsubLauncher';
 import { spacing } from '../../theme/designTokens';
 
 export function VerificationScreen() {
@@ -19,6 +20,7 @@ export function VerificationScreen() {
   const [loading, setLoading] = useState(true);
   const [starting, setStarting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const nativeSdk = isSumsubNativeAvailable();
 
   const load = useCallback(async () => {
     try {
@@ -37,7 +39,13 @@ export function VerificationScreen() {
     setStarting(true);
     setError(null);
     try {
-      await api.kycStart();
+      const session = await api.kycStart();
+      if (nativeSdk && session.access_token) {
+        const outcome = await launchSumsubVerification(session);
+        if (outcome === 'unavailable') {
+          setError(t('verification.sdkUnavailable'));
+        }
+      }
       await load();
     } catch (e) {
       const msg = e instanceof ApiError ? e.message : t('states.errorHint');
@@ -96,7 +104,7 @@ export function VerificationScreen() {
       ) : null}
 
       <Text style={[theme.type.caption, { marginTop: spacing.xl, textAlign: 'center' }]}>
-        Sumsub Mobile SDK — tokens via POST /api/kyc/start only. Webhook is source of truth.
+        {nativeSdk ? t('verification.sdkReady') : t('verification.sdkBuildRequired')}
       </Text>
     </ScrollView>
   );

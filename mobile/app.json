@@ -18,8 +18,34 @@
       },
       "package": "com.amotpay.app"
     },
+    "plugins": [
+      [
+        "expo-build-properties",
+        {
+          "android": {
+            "extraMavenRepos": [
+              {
+                "url": "https://maven.sumsub.com/repository/maven-public/"
+              }
+            ]
+          },
+          "ios": {
+            "extraPods": [
+              {
+                "source": "https://github.com/SumSubstance/Specs.git",
+                "name": "IdensicMobileSDK",
+                "version": "1.33.1"
+              }
+            ]
+          }
+        }
+      ]
+    ],
     "extra": {
-      "apiUrl": "https://amotpay-api.nexustechnologies.cloud"
+      "apiUrl": "https://amotpay-api.nexustechnologies.cloud",
+      "eas": {
+        "projectId": "amotpay-mobile"
+      }
     }
   }
 }

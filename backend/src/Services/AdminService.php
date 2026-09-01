@@ -4,19 +4,20 @@ declare(strict_types=1);
 
 namespace AmotPay\Services;
 
-use AmotPay\Config\Env;
 use AmotPay\Database\Database;
 use AmotPay\Http\ApiException;
+use AmotPay\Admin\AdminAccountService;
 
 final class AdminService
 {
-    public function login(string $pin): array
+    public function __construct(private AdminAccountService $accounts = new AdminAccountService()) {}
+
+    public function login(string $username, string $password): array
     {
-        $expected = Env::get('ADMIN_PIN', '') ?? '';
-        if (strlen($expected) < 8) {
+        if (!$this->accounts->isConfigured()) {
             throw new ApiException('Admin authentication is not configured', 503, 'ADMIN_NOT_CONFIGURED');
         }
-        if (!hash_equals($expected, $pin)) {
+        if (!$this->accounts->verify($username, $password)) {
             throw new ApiException('Invalid admin credentials', 401, 'INVALID_ADMIN_CREDENTIALS');
         }
 
@@ -27,7 +28,28 @@ final class AdminService
             'INSERT INTO admin_sessions (token_hash, expires_at) VALUES (?, DATE_ADD(NOW(), INTERVAL 24 HOUR))'
         )->execute([$hash]);
 
-        return ['token' => $token, 'expires_in_hours' => 24];
+        return [
+            'token' => $token,
+            'expires_in_hours' => 24,
+            'username' => $this->accounts->getAccountInfo()['username'],
+        ];
+    }
+
+    public function getAccountInfo(): array
+    {
+        return $this->accounts->getAccountInfo();
+    }
+
+    public function updateCredentials(string $currentPassword, string $newUsername, string $newPassword, ?string $ip): array
+    {
+        return $this->accounts->updateCredentials($currentPassword, $newUsername, $newPassword, $ip);
+    }
+
+    public function verifyPassword(string $password): bool
+    {
+        $info = $this->accounts->getAccountInfo();
+
+        return $this->accounts->verify($info['username'], $password);
     }
 
     public function validateToken(?string $token): bool

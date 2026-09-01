@@ -61,7 +61,10 @@
     "submitted": "Vérification envoyée",
     "submittedHint": "Nous examinons vos informations.",
     "unavailable": "La vérification d'identité n'est pas disponible.",
-    "retry": "Réessayer"
+    "retry": "Réessayer",
+    "sdkUnavailable": "Le SDK Sumsub n'est pas disponible dans cette build.",
+    "sdkReady": "La vérification utilise Sumsub. Le statut final vient d'AMOTPay via webhook.",
+    "sdkBuildRequired": "Utilisez une build EAS Android/iOS pour lancer Sumsub (Expo Go non supporté)."
   },
   "settings": {
     "title": "Paramètres",
@@ -158,6 +161,8 @@
     "method": "Méthode",
     "fee": "Frais",
     "rate": "Taux",
+    "arrival": "Devis valide jusqu'à",
+    "reviewHint": "Appuyez sur Obtenir le devis pour les taux en direct.",
     "reference": "Référence",
     "status": "Statut",
     "continue": "Continuer",

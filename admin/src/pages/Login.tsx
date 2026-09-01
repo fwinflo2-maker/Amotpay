@@ -5,7 +5,8 @@ import { AmotpayLogo } from '../components/AmotpayLogo';
 import { Button } from '../components/ui';
 
 export function LoginPage() {
-  const [pin, setPin] = useState('');
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [busy, setBusy] = useState(false);
   const nav = useNavigate();
@@ -15,7 +16,7 @@ export function LoginPage() {
     setBusy(true);
     setError('');
     try {
-      await login(pin);
+      await login(username.trim(), password);
       nav('/');
     } catch (err) {
       setError((err as Error).message);
@@ -35,9 +36,9 @@ export function LoginPage() {
       <header className="lp-nav">
         <div className="lp-nav-inner">
           <div className="lp-brand">
-          <AmotpayLogo size={30} variant="lockup" />
+            <AmotpayLogo size={36} variant="image" />
+            <span className="lp-brand-text">Admin</span>
           </div>
-          <span className="lp-nav-meta">Admin</span>
         </div>
       </header>
 
@@ -61,31 +62,46 @@ export function LoginPage() {
       <section className="login-panel">
         <div className="login-card">
           <h2>Connexion</h2>
-          <p className="login-lead">Entrez votre PIN administrateur pour continuer.</p>
+          <p className="login-lead">Entrez votre identifiant et mot de passe administrateur.</p>
 
           <form onSubmit={submit}>
-            <label className="field" htmlFor="admin-pin">
-              <span className="field-label">PIN Admin</span>
+            <label className="field" htmlFor="admin-username">
+              <span className="field-label">Identifiant</span>
               <input
-                id="admin-pin"
+                id="admin-username"
+                type="text"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                autoComplete="username"
+                placeholder="admin"
+                disabled={busy}
+                required
+              />
+            </label>
+
+            <label className="field" htmlFor="admin-password">
+              <span className="field-label">Mot de passe</span>
+              <input
+                id="admin-password"
                 type="password"
-                value={pin}
-                onChange={(e) => setPin(e.target.value)}
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
                 autoComplete="current-password"
                 placeholder="••••••••"
                 disabled={busy}
+                required
               />
             </label>
 
             {error && <p className="error">{error}</p>}
 
-            <Button type="submit" disabled={busy || !pin.trim()}>
+            <Button type="submit" disabled={busy || !username.trim() || !password}>
               {busy ? 'Connexion…' : 'Connexion'}
             </Button>
           </form>
         </div>
 
-        <p className="login-footer">© {new Date().getFullYear()} NEXUS Corp Technologies</p>
+        <p className="login-footer">© {new Date().getFullYear()} AMOTPay</p>
       </section>
     </div>
   );

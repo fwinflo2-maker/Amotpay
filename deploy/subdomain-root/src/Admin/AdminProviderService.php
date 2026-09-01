@@ -114,18 +114,15 @@ final class AdminProviderService
     }
 
     /** @param array<string, mixed> $newSecrets */
-    public function rotateCredentials(string $provider, array $newSecrets, ?string $confirmPin, ?string $ip): array
+    public function rotateCredentials(string $provider, array $newSecrets, ?string $confirmPassword, ?string $ip): array
     {
         AdminContext::require(AdminPermission::PROVIDER_CREDENTIALS_ROTATE);
 
-        if ($confirmPin === null || $confirmPin === '') {
+        if ($confirmPassword === null || $confirmPassword === '') {
             throw new ApiException('Credential rotation requires admin confirmation', 403, 'CONFIRMATION_REQUIRED');
         }
 
-        $expected = \AmotPay\Config\Env::get('ADMIN_PIN', '') ?? '';
-        if ($expected === '' || !hash_equals($expected, $confirmPin)) {
-            throw new ApiException('Invalid admin confirmation', 403, 'INVALID_CONFIRMATION');
-        }
+        (new AdminAccountService())->assertPassword($confirmPassword);
 
         $provider = strtoupper($provider);
         $keys = match ($provider) {

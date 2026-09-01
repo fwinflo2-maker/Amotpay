@@ -30,12 +30,6 @@ Copy-Item "$backend\migrations\*.sql" "$out\_migrate\migrations\"
 
 # Runtime configuration is supplied by the hosting environment, never by a webroot file.
 $utf8NoBom = New-Object System.Text.UTF8Encoding($false)
-$adminServicePath = "$out\src\Services\AdminService.php"
-if (Test-Path $adminServicePath) {
-    $adminService = Get-Content $adminServicePath -Raw
-    $adminService = $adminService -replace "Env::get\('ADMIN_PIN',\s*'[^']*'\)\s*\?\?\s*'[^']*'", "Env::require('ADMIN_PIN')"
-    [IO.File]::WriteAllText($adminServicePath, $adminService, $utf8NoBom)
-}
 
 $indexPath = "$out\index.php"
 $index = @'
