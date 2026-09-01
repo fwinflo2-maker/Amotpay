@@ -1,0 +1,19 @@
+{
+  "brand": "AMOTPay",
+  "tabs": { "home": "Início", "send": "Enviar", "accounts": "Contas", "wallet": "Carteira", "activity": "Atividade" },
+  "greeting": { "morning": "Bom dia", "afternoon": "Boa tarde", "evening": "Boa noite" },
+  "home": {
+    "totalBalance": "Saldo total", "yourMoney": "Seu dinheiro", "digitalAssets": "Ativos digitais",
+    "unavailable": "Indisponível", "pendingProvider": "Em breve", "verifyToUnlock": "Verifique sua identidade",
+    "recentActivity": "Atividade recente", "seeAll": "Ver tudo", "send": "Enviar", "receive": "Receber",
+    "noActivity": "Sem atividade", "noActivityHint": "Suas transferências aparecerão aqui.", "balanceHidden": "••••••"
+  },
+  "accounts": { "title": "Contas", "subtitle": "Mantenha dinheiro em moedas suportadas.", "empty": "Nenhuma conta disponível.", "emptyHint": "Contas aparecem quando habilitadas.", "usd": "Conta USD", "eur": "Conta EUR" },
+  "wallet": { "title": "Carteira", "cash": "Dinheiro", "digitalAssets": "Ativos digitais", "empty": "Sem ativos digitais.", "emptyHint": "Recursos crypto ativam conforme sua região.", "balance": "Saldo" },
+  "activity": { "title": "Atividade", "today": "Hoje", "yesterday": "Ontem", "earlier": "Anterior", "empty": "Sem transações", "filters": { "all": "Todos", "success": "Concluídos", "pending": "Em andamento" } },
+  "verification": { "title": "Verificação", "notStarted": "Não iniciada", "inProgress": "Em andamento", "verified": "Verificado", "actionRequired": "Ação necessária", "start": "Iniciar", "submitted": "Verificação enviada", "submittedHint": "Estamos analisando suas informações.", "unavailable": "Verificação indisponível.", "retry": "Tentar novamente" },
+  "settings": { "title": "Configurações", "profile": "Perfil", "security": "Segurança", "verification": "Verificação", "notifications": "Notificações", "language": "Idioma", "appearance": "Aparência", "appearanceSystem": "Sistema", "appearanceLight": "Claro", "appearanceDark": "Escuro", "logout": "Sair" },
+  "auth": { "signIn": "Entrar", "signUp": "Criar conta", "phone": "Telefone", "password": "Senha", "firstName": "Nome", "lastName": "Sobrenome", "continue": "Continuar", "tagline": "Seu dinheiro. Em todo lugar." },
+  "states": { "loading": "Carregando…", "offline": "Você está offline.", "offlineHint": "Verifique sua conexão.", "error": "Algo deu errado", "errorHint": "Tente novamente.", "unavailable": "Indisponível", "unavailableHint": "Recurso ainda não disponível.", "retry": "Tentar novamente" },
+  "kycBanner": { "title": "Verifique sua identidade", "body": "Desbloqueie transferências e mais.", "cta": "Verificar" }
+}

@@ -1,0 +1,19 @@
+{
+  "brand": "AMOTPay",
+  "tabs": { "home": "Start", "send": "Senden", "accounts": "Konten", "wallet": "Wallet", "activity": "Aktivität" },
+  "greeting": { "morning": "Guten Morgen", "afternoon": "Guten Tag", "evening": "Guten Abend" },
+  "home": {
+    "totalBalance": "Gesamtsaldo", "yourMoney": "Ihr Geld", "digitalAssets": "Digitale Assets",
+    "unavailable": "Nicht verfügbar", "pendingProvider": "Demnächst", "verifyToUnlock": "Identität bestätigen",
+    "recentActivity": "Letzte Aktivität", "seeAll": "Alle", "send": "Senden", "receive": "Empfangen",
+    "noActivity": "Keine Aktivität", "noActivityHint": "Überweisungen erscheinen hier.", "balanceHidden": "••••••"
+  },
+  "accounts": { "title": "Konten", "subtitle": "Geld in unterstützten Währungen halten.", "empty": "Keine Konten verfügbar.", "emptyHint": "Konten erscheinen bei Freischaltung.", "usd": "USD-Konto", "eur": "EUR-Konto" },
+  "wallet": { "title": "Wallet", "cash": "Bargeld", "digitalAssets": "Digitale Assets", "empty": "Keine digitalen Assets.", "emptyHint": "Crypto-Funktionen je nach Region.", "balance": "Saldo" },
+  "activity": { "title": "Aktivität", "today": "Heute", "yesterday": "Gestern", "earlier": "Früher", "empty": "Keine Transaktionen", "filters": { "all": "Alle", "success": "Abgeschlossen", "pending": "In Bearbeitung" } },
+  "verification": { "title": "Verifizierung", "notStarted": "Nicht gestartet", "inProgress": "In Bearbeitung", "verified": "Verifiziert", "actionRequired": "Aktion erforderlich", "start": "Starten", "submitted": "Verifizierung eingereicht", "submittedHint": "Wir prüfen Ihre Angaben.", "unavailable": "Verifizierung nicht verfügbar.", "retry": "Erneut versuchen" },
+  "settings": { "title": "Einstellungen", "profile": "Profil", "security": "Sicherheit", "verification": "Verifizierung", "notifications": "Benachrichtigungen", "language": "Sprache", "appearance": "Erscheinungsbild", "appearanceSystem": "System", "appearanceLight": "Hell", "appearanceDark": "Dunkel", "logout": "Abmelden" },
+  "auth": { "signIn": "Anmelden", "signUp": "Konto erstellen", "phone": "Telefon", "password": "Passwort", "firstName": "Vorname", "lastName": "Nachname", "continue": "Weiter", "tagline": "Ihr Geld. Überall." },
+  "states": { "loading": "Laden…", "offline": "Offline.", "offlineHint": "Verbindung prüfen.", "error": "Etwas ist schiefgelaufen", "errorHint": "Bitte erneut versuchen.", "unavailable": "Nicht verfügbar", "unavailableHint": "Funktion noch nicht verfügbar.", "retry": "Erneut versuchen" },
+  "kycBanner": { "title": "Identität bestätigen", "body": "Überweisungen und mehr freischalten.", "cta": "Verifizieren" }
+}

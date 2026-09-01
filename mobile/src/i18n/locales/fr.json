@@ -1,0 +1,104 @@
+{
+  "brand": "AMOTPay",
+  "tabs": {
+    "home": "Accueil",
+    "send": "Envoyer",
+    "accounts": "Comptes",
+    "wallet": "Portefeuille",
+    "activity": "Activité"
+  },
+  "greeting": {
+    "morning": "Bonjour",
+    "afternoon": "Bon après-midi",
+    "evening": "Bonsoir"
+  },
+  "home": {
+    "totalBalance": "Solde total",
+    "yourMoney": "Votre argent",
+    "digitalAssets": "Actifs numériques",
+    "unavailable": "Indisponible",
+    "pendingProvider": "Bientôt disponible",
+    "verifyToUnlock": "Vérifiez votre identité pour débloquer",
+    "recentActivity": "Activité récente",
+    "seeAll": "Tout voir",
+    "send": "Envoyer",
+    "receive": "Recevoir",
+    "noActivity": "Aucune activité",
+    "noActivityHint": "Vos transferts et transactions apparaîtront ici.",
+    "balanceHidden": "••••••"
+  },
+  "accounts": {
+    "title": "Comptes",
+    "subtitle": "Détenez de l'argent dans les devises prises en charge.",
+    "empty": "Aucun compte disponible.",
+    "emptyHint": "Les comptes apparaissent lorsqu'ils sont activés pour votre profil.",
+    "usd": "Compte USD",
+    "eur": "Compte EUR"
+  },
+  "wallet": {
+    "title": "Portefeuille",
+    "cash": "Espèces",
+    "digitalAssets": "Actifs numériques",
+    "empty": "Aucun actif numérique.",
+    "emptyHint": "Les fonctionnalités crypto s'activent selon votre région.",
+    "balance": "Solde"
+  },
+  "activity": {
+    "title": "Activité",
+    "today": "Aujourd'hui",
+    "yesterday": "Hier",
+    "earlier": "Plus tôt",
+    "empty": "Aucune transaction",
+    "filters": { "all": "Tous", "success": "Terminés", "pending": "En cours" }
+  },
+  "verification": {
+    "title": "Vérification",
+    "notStarted": "Non commencée",
+    "inProgress": "En cours",
+    "verified": "Vérifié",
+    "actionRequired": "Action requise",
+    "start": "Commencer",
+    "submitted": "Vérification envoyée",
+    "submittedHint": "Nous examinons vos informations.",
+    "unavailable": "La vérification d'identité n'est pas disponible.",
+    "retry": "Réessayer"
+  },
+  "settings": {
+    "title": "Paramètres",
+    "profile": "Profil",
+    "security": "Sécurité",
+    "verification": "Vérification",
+    "notifications": "Notifications",
+    "language": "Langue",
+    "appearance": "Apparence",
+    "appearanceSystem": "Système",
+    "appearanceLight": "Clair",
+    "appearanceDark": "Sombre",
+    "logout": "Déconnexion"
+  },
+  "auth": {
+    "signIn": "Connexion",
+    "signUp": "Créer un compte",
+    "phone": "Téléphone",
+    "password": "Mot de passe",
+    "firstName": "Prénom",
+    "lastName": "Nom",
+    "continue": "Continuer",
+    "tagline": "Votre argent. Partout."
+  },
+  "states": {
+    "loading": "Chargement…",
+    "offline": "Vous êtes hors ligne.",
+    "offlineHint": "Vérifiez votre connexion et réessayez.",
+    "error": "Une erreur est survenue",
+    "errorHint": "Veuillez réessayer.",
+    "unavailable": "Indisponible",
+    "unavailableHint": "Cette fonctionnalité n'est pas encore disponible.",
+    "retry": "Réessayer"
+  },
+  "kycBanner": {
+    "title": "Vérifiez votre identité",
+    "body": "Débloquez transferts, comptes et plus.",
+    "cta": "Vérifier"
+  }
+}

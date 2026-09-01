@@ -1,0 +1,19 @@
+{
+  "brand": "AMOTPay",
+  "tabs": { "home": "Inicio", "send": "Enviar", "accounts": "Cuentas", "wallet": "Billetera", "activity": "Actividad" },
+  "greeting": { "morning": "Buenos días", "afternoon": "Buenas tardes", "evening": "Buenas noches" },
+  "home": {
+    "totalBalance": "Saldo total", "yourMoney": "Tu dinero", "digitalAssets": "Activos digitales",
+    "unavailable": "No disponible", "pendingProvider": "Próximamente", "verifyToUnlock": "Verifica tu identidad",
+    "recentActivity": "Actividad reciente", "seeAll": "Ver todo", "send": "Enviar", "receive": "Recibir",
+    "noActivity": "Sin actividad", "noActivityHint": "Tus transferencias aparecerán aquí.", "balanceHidden": "••••••"
+  },
+  "accounts": { "title": "Cuentas", "subtitle": "Mantén dinero en monedas compatibles.", "empty": "Sin cuentas disponibles.", "emptyHint": "Las cuentas aparecen cuando están habilitadas.", "usd": "Cuenta USD", "eur": "Cuenta EUR" },
+  "wallet": { "title": "Billetera", "cash": "Efectivo", "digitalAssets": "Activos digitales", "empty": "Sin activos digitales.", "emptyHint": "Las funciones crypto se activan según tu región.", "balance": "Saldo" },
+  "activity": { "title": "Actividad", "today": "Hoy", "yesterday": "Ayer", "earlier": "Anterior", "empty": "Sin transacciones", "filters": { "all": "Todos", "success": "Completados", "pending": "En curso" } },
+  "verification": { "title": "Verificación", "notStarted": "No iniciada", "inProgress": "En curso", "verified": "Verificado", "actionRequired": "Acción requerida", "start": "Iniciar", "submitted": "Verificación enviada", "submittedHint": "Estamos revisando tu información.", "unavailable": "Verificación no disponible.", "retry": "Reintentar" },
+  "settings": { "title": "Ajustes", "profile": "Perfil", "security": "Seguridad", "verification": "Verificación", "notifications": "Notificaciones", "language": "Idioma", "appearance": "Apariencia", "appearanceSystem": "Sistema", "appearanceLight": "Claro", "appearanceDark": "Oscuro", "logout": "Cerrar sesión" },
+  "auth": { "signIn": "Iniciar sesión", "signUp": "Crear cuenta", "phone": "Teléfono", "password": "Contraseña", "firstName": "Nombre", "lastName": "Apellido", "continue": "Continuar", "tagline": "Tu dinero. En todas partes." },
+  "states": { "loading": "Cargando…", "offline": "Sin conexión.", "offlineHint": "Comprueba tu conexión.", "error": "Algo salió mal", "errorHint": "Inténtalo de nuevo.", "unavailable": "No disponible", "unavailableHint": "Función no disponible aún.", "retry": "Reintentar" },
+  "kycBanner": { "title": "Verifica tu identidad", "body": "Desbloquea transferencias y más.", "cta": "Verificar" }
+}

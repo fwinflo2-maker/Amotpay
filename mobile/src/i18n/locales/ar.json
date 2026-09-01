@@ -1,0 +1,19 @@
+{
+  "brand": "AMOTPay",
+  "tabs": { "home": "الرئيسية", "send": "إرسال", "accounts": "الحسابات", "wallet": "المحفظة", "activity": "النشاط" },
+  "greeting": { "morning": "صباح الخير", "afternoon": "مساء الخير", "evening": "مساء الخير" },
+  "home": {
+    "totalBalance": "الرصيد الإجمالي", "yourMoney": "أموالك", "digitalAssets": "الأصول الرقمية",
+    "unavailable": "غير متاح", "pendingProvider": "قريبًا", "verifyToUnlock": "تحقق من هويتك",
+    "recentActivity": "النشاط الأخير", "seeAll": "عرض الكل", "send": "إرسال", "receive": "استلام",
+    "noActivity": "لا يوجد نشاط", "noActivityHint": "ستظهر تحويلاتك هنا.", "balanceHidden": "••••••"
+  },
+  "accounts": { "title": "الحسابات", "subtitle": "احتفظ بالأموال بالعملات المدعومة.", "empty": "لا توجد حسابات.", "emptyHint": "تظهر الحسابات عند التفعيل.", "usd": "حساب USD", "eur": "حساب EUR" },
+  "wallet": { "title": "المحفظة", "cash": "نقد", "digitalAssets": "أصول رقمية", "empty": "لا توجد أصول رقمية.", "emptyHint": "تُفعّل ميزات العملات الرقمية حسب منطقتك.", "balance": "الرصيد" },
+  "activity": { "title": "النشاط", "today": "اليوم", "yesterday": "أمس", "earlier": "سابقًا", "empty": "لا توجد معاملات", "filters": { "all": "الكل", "success": "مكتمل", "pending": "قيد التنفيذ" } },
+  "verification": { "title": "التحقق", "notStarted": "لم يبدأ", "inProgress": "قيد التنفيذ", "verified": "تم التحقق", "actionRequired": "إجراء مطلوب", "start": "ابدأ", "submitted": "تم إرسال التحقق", "submittedHint": "نراجع معلوماتك.", "unavailable": "التحقق غير متاح.", "retry": "حاول مرة أخرى" },
+  "settings": { "title": "الإعدادات", "profile": "الملف", "security": "الأمان", "verification": "التحقق", "notifications": "الإشعارات", "language": "اللغة", "appearance": "المظهر", "appearanceSystem": "النظام", "appearanceLight": "فاتح", "appearanceDark": "داكن", "logout": "تسجيل الخروج" },
+  "auth": { "signIn": "تسجيل الدخول", "signUp": "إنشاء حساب", "phone": "الهاتف", "password": "كلمة المرور", "firstName": "الاسم", "lastName": "اللقب", "continue": "متابعة", "tagline": "أموالك. في كل مكان." },
+  "states": { "loading": "جارٍ التحميل…", "offline": "أنت غير متصل.", "offlineHint": "تحقق من الاتصال.", "error": "حدث خطأ", "errorHint": "حاول مرة أخرى.", "unavailable": "غير متاح", "unavailableHint": "الميزة غير متاحة بعد.", "retry": "حاول مرة أخرى" },
+  "kycBanner": { "title": "تحقق من هويتك", "body": "افتح التحويلات والمزيد.", "cta": "تحقق" }
+}

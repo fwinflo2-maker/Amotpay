@@ -1,0 +1,104 @@
+{
+  "brand": "AMOTPay",
+  "tabs": {
+    "home": "Home",
+    "send": "Send",
+    "accounts": "Accounts",
+    "wallet": "Wallet",
+    "activity": "Activity"
+  },
+  "greeting": {
+    "morning": "Good morning",
+    "afternoon": "Good afternoon",
+    "evening": "Good evening"
+  },
+  "home": {
+    "totalBalance": "Total balance",
+    "yourMoney": "Your money",
+    "digitalAssets": "Digital assets",
+    "unavailable": "Unavailable",
+    "pendingProvider": "Coming soon",
+    "verifyToUnlock": "Verify your identity to unlock",
+    "recentActivity": "Recent activity",
+    "seeAll": "See all",
+    "send": "Send",
+    "receive": "Receive",
+    "noActivity": "No activity yet",
+    "noActivityHint": "Your transfers and transactions will appear here.",
+    "balanceHidden": "••••••"
+  },
+  "accounts": {
+    "title": "Accounts",
+    "subtitle": "Hold money in supported currencies.",
+    "empty": "No accounts available yet.",
+    "emptyHint": "Accounts appear when enabled for your profile and region.",
+    "usd": "USD Account",
+    "eur": "EUR Account"
+  },
+  "wallet": {
+    "title": "Wallet",
+    "cash": "Cash",
+    "digitalAssets": "Digital assets",
+    "empty": "No digital assets yet.",
+    "emptyHint": "Crypto features unlock when available in your region.",
+    "balance": "Balance"
+  },
+  "activity": {
+    "title": "Activity",
+    "today": "Today",
+    "yesterday": "Yesterday",
+    "earlier": "Earlier",
+    "empty": "No transactions yet",
+    "filters": { "all": "All", "success": "Completed", "pending": "In progress" }
+  },
+  "verification": {
+    "title": "Verification",
+    "notStarted": "Not started",
+    "inProgress": "In progress",
+    "verified": "Verified",
+    "actionRequired": "Action required",
+    "start": "Start verification",
+    "submitted": "Verification submitted",
+    "submittedHint": "We're reviewing your information.",
+    "unavailable": "Identity verification is not available right now.",
+    "retry": "Try again"
+  },
+  "settings": {
+    "title": "Settings",
+    "profile": "Profile",
+    "security": "Security",
+    "verification": "Verification",
+    "notifications": "Notifications",
+    "language": "Language",
+    "appearance": "Appearance",
+    "appearanceSystem": "System",
+    "appearanceLight": "Light",
+    "appearanceDark": "Dark",
+    "logout": "Sign out"
+  },
+  "auth": {
+    "signIn": "Sign in",
+    "signUp": "Create account",
+    "phone": "Phone",
+    "password": "Password",
+    "firstName": "First name",
+    "lastName": "Last name",
+    "continue": "Continue",
+    "tagline": "Your money. Everywhere."
+  },
+  "states": {
+    "loading": "Loading…",
+    "offline": "You're offline.",
+    "offlineHint": "Check your connection and try again.",
+    "error": "Something went wrong",
+    "errorHint": "Please try again.",
+    "unavailable": "Currently unavailable",
+    "unavailableHint": "This feature is not available for your account yet.",
+    "retry": "Try again"
+  },
+  "kycBanner": {
+    "title": "Verify your identity",
+    "body": "Unlock transfers, accounts, and more.",
+    "cta": "Verify now"
+  }
+}

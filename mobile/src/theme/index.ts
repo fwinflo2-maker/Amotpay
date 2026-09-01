@@ -1,3 +1,31 @@
+import type { Theme, ThemeColors, ColorScheme } from './designTokens';
+import {
+  spacing,
+  radius,
+  motion,
+  gradients as tokenGradients,
+  shadow as tokenShadow,
+  buildTheme,
+  typography as createTypography,
+  lightColors,
+  darkColors,
+} from './designTokens';
+
+export {
+  spacing,
+  radius,
+  motion,
+  lightColors,
+  darkColors,
+  buildTheme,
+  tokenGradients,
+  tokenShadow,
+  createTypography,
+};
+export type { Theme, ThemeColors, ColorScheme };
+export { ThemeProvider, useTheme } from '../context/ThemeContext';
+
+/** Legacy palette for Send / History screens until Phase 3C refactor */
 export const colors = {
   deepGreen: '#0F3D2E',
   deepGreenDark: '#081F18',
@@ -29,23 +57,6 @@ export const gradients = {
   emerald: [colors.emerald, colors.deepGreen] as const,
   glass: ['rgba(255,255,255,0.14)', 'rgba(255,255,255,0.02)'] as const,
   sheen: ['rgba(255,255,255,0)', 'rgba(255,255,255,0.08)', 'rgba(255,255,255,0)'] as const,
-};
-
-export const spacing = {
-  xs: 4,
-  sm: 8,
-  md: 16,
-  lg: 24,
-  xl: 32,
-  xxl: 48,
-};
-
-export const radius = {
-  sm: 10,
-  md: 16,
-  lg: 22,
-  xl: 28,
-  pill: 999,
 };
 
 export const shadow = {
